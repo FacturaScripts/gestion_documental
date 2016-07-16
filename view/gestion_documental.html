@@ -1,0 +1,130 @@
+{include="header"}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="page-header">
+                <h1>
+                    <i class="fa fa-graduation-cap" aria-hidden="true"></i>
+                    Gestión Documental
+                    <span class="btn-group">
+                        <a class="btn btn-xs btn-default" href="{$fsc->url()}" title="Recargar la página">
+                            <span class="glyphicon glyphicon-refresh"></span>
+                        </a>
+                        {if="$fsc->page->is_default()"}
+                        <a class="btn btn-xs btn-default active" href="{$fsc->url()}&amp;default_page=FALSE" title="desmarcar como página de inicio">
+                            <span class="glyphicon glyphicon-home"></span>
+                        </a>
+                        {else}
+                        <a class="btn btn-xs btn-default" href="{$fsc->url()}&amp;default_page=TRUE" title="marcar como página de inicio">
+                            <span class="glyphicon glyphicon-home"></span>
+                        </a>
+                        {/if}
+                    </span>
+                </h1>
+                <p class="help-block">
+                    Gestiona los archivos adjuntos a los documentos de facturación
+                </p>
+            </div>
+        </div>
+    </div>
+
+    
+    
+    <div class="row">
+        <div class="col-sm-12">
+
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th></th>
+                            <th class="text-left">Código + {#FS_NUMERO2#}</th>
+                            <th class="text-left">Cliente</th>
+                            <th class="text-left">Observaciones</th>
+                            <th class="text-right">Total</th>
+                            {if="$fsc->codagente!==''"}
+                            <th class="text-right">Comisión</th>
+                            <th class="text-left">%</th>
+                            {/if}
+                            <th class="text-right">Fecha</th>
+                            <th class="text-right">Vencimiento</th>
+                        </tr>
+                    </thead>
+                    {loop="$fsc->resultados"}
+                    <tr class="">
+                        <td class="text-center">
+                            {if="$value->pagada"}
+                            <span class="glyphicon glyphicon-ok" title="La factura está pagada"></span>
+                            {/if}
+                            {if="$value->anulada"}
+                            <span class="glyphicon glyphicon-remove" title="La factura está anulada"></span>
+                            {/if}
+                            {if="$value->idfacturarect"}
+                            <span class="glyphicon glyphicon-flag" title="{#FS_FACTURA_RECTIFICATIVA#} de {$value->codigorect}"></span>
+                            {/if}
+                            {if="$value->femail"}
+                            <span class="glyphicon glyphicon-send" title="La factura fue enviada por email el {$value->femail}"></span>
+                            {/if}
+                        </td>
+                        <td class="text-center">
+                            {if="$value->idasiento"}
+                            <span class="glyphicon glyphicon-paperclip" title="La factura tiene vinculado un asiento contable"></span>
+                            {/if}
+                        </td>
+                        <td><a href="{$value->url()}">{$value->codigo}</a> {$value->numero2}</td>
+                        <td>
+                            {$value->nombrecliente}
+                            <a href="{$fsc->url()}&codcliente={$value->codcliente}" class="cancel_clickable" title="Ver más facturas de {$value->nombrecliente}">[+]</a>
+                        </td>
+                        <td>{$value->observaciones_resume()}</td>
+                        <td class="text-right">{$fsc->show_precio($value->total, $value->coddivisa)}</td>
+                        {if="$fsc->codagente!==''"}
+                        <td class="text-right info">
+                            {$fsc->show_precio($value->neto*$value->porcomision/100, $value->coddivisa)}
+                        </td>
+                        <td class="text-left">{$fsc->show_numero($value->porcomision)}</td>
+                        {/if}
+                        <td class="text-right" title="Hora {$value->hora}">
+                            {if="$value->fecha==$fsc->today()"}<b>{$value->fecha}</b>{else}{$value->fecha}{/if}
+                        </td>
+                        <td class="text-right">
+                            {if="$value->vencimiento==$fsc->today()"}<b>{$value->vencimiento}</b>{else}{$value->vencimiento}{/if}
+                        </td>
+                    </tr>
+                    {else}
+                    <tr class="warning">
+                        <td></td>
+                        <td></td>
+                        <td colspan="6">Ningún documento encontrado.</td>
+                        {if="$fsc->codagente!==''"}
+                        <td></td>
+                        <td></td>
+                        {/if}
+                    </tr>
+                    {/loop}
+                    {if="$fsc->total_resultados"}
+                    <tr>
+                        <td colspan="6" class="text-right">
+                            {$fsc->total_resultados_txt}
+                            {loop="$fsc->total_resultados"}
+                            <br/><b>{$fsc->show_precio($value['total'],$value['coddivisa'],FALSE)}</b>
+                            {/loop}
+                        </td>
+                        {if="$fsc->codagente!==''"}
+                        <td class="text-right"><b>{$fsc->show_precio($fsc->total_resultados_comision)}</b></td>
+                        <td></td>
+                        {/if}
+                        <td colspan="2"></td>
+                    </tr>
+                    {/if}
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div> <!--fin container fluid-->
+
+
+
+{include="footer"}
