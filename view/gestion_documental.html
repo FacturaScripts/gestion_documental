@@ -1,4 +1,18 @@
 {include="header"}
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        $('[data-toggle="popover"]').popover({
+            placement: 'bottom',
+            trigger: 'hover',
+            content: function () {
+                return '<div class="thumbnail" style="margin: 0px;"><img src="' + $(this).data('img') + '" /></a>';
+            }
+        });
+
+
+    });
+</script>
 <div class="container-fluid">
     <div class="row">
         <div class="col-sm-12">
@@ -27,9 +41,69 @@
             </div>
         </div>
     </div>
+    
+<div class="container-fluid">
+    
+    <form name="f_custom_search" action="{$fsc->url()}" method="post" class="form">
+        {if="$fsc->cliente"}
+        <input type="hidden" name="codcliente" value="{$fsc->cliente->codcliente}"/>
+        {else}
+        <input type="hidden" name="codcliente"/>
+        {/if}
+        
+            <div class="row">
+                <div class="col-sm-2">
+                    <div class="form-group">
+                        <div class="input-group">
+                            <input class="form-control" type="text" name="query" value="{$fsc->query}" autocomplete="off" placeholder="Buscar">
+                            <span class="input-group-btn">
+                                <button class="btn btn-primary hidden-sm" type="submit">
+                                    <span class="glyphicon glyphicon-search"></span>
+                                </button>
+                            </span>
+                        </div>
+                    </div>
+                </div>
 
-    
-    
+                <div class="col-sm-2">
+                    <div class="form-group">
+                        <select name="tipodoc" class="form-control" onchange="this.form.submit()">
+                            <option value="" selected="">Cualquier Tipo de Documento</option>
+                            <option value="">------</option>
+                            {loop="$fsc->tiposdoc"}
+                            {if="$value->codigo==$fsc->tipodoc"}
+                            <option value="{$value->codigo}" selected="">{$value->descripcion}</option>
+                            {else}
+                            <option value="{$value->codigo}">{$value->descripcion}</option>
+                            {/if}
+                            {/loop}
+                        </select>
+                    </div>
+                </div>
+
+                <div class="col-sm-2">
+                    <div class="form-group">
+                        <input type="text" name="desde" value="{$fsc->desde}" class="form-control datepicker" placeholder="Desde" autocomplete="off" onchange="this.form.submit()"/>
+                    </div>
+                </div>
+                <div class="col-sm-2">
+                    <div class="form-group">
+                        <input type="text" name="hasta" value="{$fsc->hasta}" class="form-control datepicker" placeholder="Hasta" autocomplete="off" onchange="this.form.submit()"/>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-offset-2 col-sm-2">
+                    <label class="checkbox-inline">
+                        <input type="checkbox" name="b_adjunto"{if="$fsc->b_adjunto"} checked="checked"{/if} value="TRUE" onchange="this.form.submit()"/>
+                        Con Ajunto
+                        <i class="fa fa-file-o" aria-hidden="true" ></i>
+                    </label>
+                </div>
+            </div>
+
+    </form>
+
     <div class="row">
         <div class="col-sm-12">
 
@@ -37,22 +111,27 @@
                 <table class="table table-hover">
                     <thead>
                         <tr>
+                            <th class="text-left">Tipo Doc.</th>
                             <th></th>
                             <th></th>
                             <th class="text-left">Código + {#FS_NUMERO2#}</th>
-                            <th class="text-left">Cliente</th>
+                            <th class="text-left">Nombre</th>
                             <th class="text-left">Observaciones</th>
-                            <th class="text-right">Total</th>
-                            {if="$fsc->codagente!==''"}
-                            <th class="text-right">Comisión</th>
-                            <th class="text-left">%</th>
-                            {/if}
+                            <th class="text-right"></th>
+                            <th class="text-right">Nombre Doc.</th>
                             <th class="text-right">Fecha</th>
-                            <th class="text-right">Vencimiento</th>
+                            <th class="text-left">Hora</th>
+                            <th class="text-right">Tamaño</th>
+                            <th class="text-right">Usuario</th>
                         </tr>
                     </thead>
                     {loop="$fsc->resultados"}
                     <tr class="">
+                        <td class="text-left">
+                            <i class="fa fa-file-text-o" aria-hidden="true">&nbsp;{$value->desc_tipodoc}</i>
+                        </td>
+                        <td class="text-left">
+                        </td>
                         <td class="text-center">
                             {if="$value->pagada"}
                             <span class="glyphicon glyphicon-ok" title="La factura está pagada"></span>
@@ -67,29 +146,43 @@
                             <span class="glyphicon glyphicon-send" title="La factura fue enviada por email el {$value->femail}"></span>
                             {/if}
                         </td>
-                        <td class="text-center">
-                            {if="$value->idasiento"}
-                            <span class="glyphicon glyphicon-paperclip" title="La factura tiene vinculado un asiento contable"></span>
-                            {/if}
-                        </td>
-                        <td><a href="{$value->url()}">{$value->codigo}</a> {$value->numero2}</td>
+                        <td><a href="{$value->url}" target="_blank">{$value->codigo}</a> {$value->numero2}</td>
                         <td>
-                            {$value->nombrecliente}
-                            <a href="{$fsc->url()}&codcliente={$value->codcliente}" class="cancel_clickable" title="Ver más facturas de {$value->nombrecliente}">[+]</a>
+                            {$value->nombre}
                         </td>
-                        <td>{$value->observaciones_resume()}</td>
-                        <td class="text-right">{$fsc->show_precio($value->total, $value->coddivisa)}</td>
-                        {if="$fsc->codagente!==''"}
-                        <td class="text-right info">
-                            {$fsc->show_precio($value->neto*$value->porcomision/100, $value->coddivisa)}
-                        </td>
-                        <td class="text-left">{$fsc->show_numero($value->porcomision)}</td>
-                        {/if}
-                        <td class="text-right" title="Hora {$value->hora}">
-                            {if="$value->fecha==$fsc->today()"}<b>{$value->fecha}</b>{else}{$value->fecha}{/if}
+
+                        <td>{$value->observaciones}</td>
+
+                        <td class="text-right">
+                            {if="$value->df_id"}
+                            {if="$value->df_extension == 'png' || $value->df_extension == 'jpg' "}
+                            <a href="{$value->df_ruta}" target="_blank"
+                               data-toggle="popover" data-html="true" 
+                               data-img="{$value->df_ruta}" data-original-title="" title="">
+
+                                {else}
+                                <a href="{$value->df_ruta}" target="_blank" title="Abrir Documento">
+
+                                    {/if}
+                                    <i class="fa fa-file-o" aria-hidden="true" ></i>
+                                </a>
+                                {/if}
                         </td>
                         <td class="text-right">
-                            {if="$value->vencimiento==$fsc->today()"}<b>{$value->vencimiento}</b>{else}{$value->vencimiento}{/if}
+                            {$value->df_nombre}
+                        </td>
+
+                        <td class="text-right" title="Fecha {$value->fecha_archivo}">
+                            {if="$value->df_fecha==$fsc->today()"}<b>{$value->df_fecha}</b>{else}{$value->df_fecha}{/if}
+                        </td>
+                        <td class="text-left" title="Hora {$value->hora_archivo}">
+                            {$value->df_hora}
+                        </td>
+                        <td class="text-right">
+                            {$value->df_tamano}
+                        </td>
+                        <td class="text-right">
+                            {$value->df_usuario}
                         </td>
                     </tr>
                     {else}
@@ -97,27 +190,8 @@
                         <td></td>
                         <td></td>
                         <td colspan="6">Ningún documento encontrado.</td>
-                        {if="$fsc->codagente!==''"}
-                        <td></td>
-                        <td></td>
-                        {/if}
                     </tr>
                     {/loop}
-                    {if="$fsc->total_resultados"}
-                    <tr>
-                        <td colspan="6" class="text-right">
-                            {$fsc->total_resultados_txt}
-                            {loop="$fsc->total_resultados"}
-                            <br/><b>{$fsc->show_precio($value['total'],$value['coddivisa'],FALSE)}</b>
-                            {/loop}
-                        </td>
-                        {if="$fsc->codagente!==''"}
-                        <td class="text-right"><b>{$fsc->show_precio($fsc->total_resultados_comision)}</b></td>
-                        <td></td>
-                        {/if}
-                        <td colspan="2"></td>
-                    </tr>
-                    {/if}
                 </table>
             </div>
         </div>

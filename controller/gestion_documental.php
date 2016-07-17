@@ -8,7 +8,13 @@
 require_model('agente.php');
 require_model('articulo.php');
 require_model('cliente.php');
+require_model('proveedor.php');
 require_model('factura_cliente.php');
+require_model('albaran_cliente.php');
+require_model('factura_proveedor.php');
+require_model('albaran_proveedor.php');
+require_model('gestion_documento.php');
+require_model('documento_factura.php');
 
 /**
  * Gestión Documental de los archivos adjuntos a los documentos de facturación
@@ -19,9 +25,11 @@ class gestion_documental extends fs_controller
 {
 
 //    public $codserie;
-//    public $serie;
+    public $serie;
+    public $tiposdoc;
     public $resultados;
     public $offset;
+    public $b_adjunto;
 
     public function __construct()
     {
@@ -31,78 +39,97 @@ class gestion_documental extends fs_controller
     protected function private_core()
     {
 
-        $this->facturacli = new factura_cliente();
-        $this->facturaprov = new factura_proveedor();
-        $this->albarancli = new factura_proveedor();
-        $this->albaranprov = new factura_proveedor();
+//        $this->facturacli  = new factura_cliente();
+//        $this->facturaprov = new factura_proveedor();
+//        $this->albarancli  = new albaran_cliente();
+//        $this->albaranprov = new albaran_proveedor();
+//        $this->docfactura  = new documento_factura();
+        $this->gesdoc      = new gestion_documento();
+        
+//        $this->offset      = 0;
+//        if (isset($_REQUEST['offset']))
+//        {
+//            $this->offset = intval($_REQUEST['offset']);
+//        }
+//
+//        /// primer nivel de ordenación
+//        $this->order = 'fecha DESC';
+//        if (isset($_GET['order']))
+//        {
+//            if ($_GET['order'] == 'fecha_desc')
+//            {
+//                $this->order = 'fecha DESC';
+//            } else if ($_GET['order'] == 'fecha_asc')
+//            {
+//                $this->order = 'fecha ASC';
+//            } else if ($_GET['order'] == 'vencimiento_desc')
+//            {
+//                $this->order = 'vencimiento DESC';
+//            } else if ($_GET['order'] == 'vencimiento_asc')
+//            {
+//                $this->order = 'vencimiento ASC';
+//            } else if ($_GET['order'] == 'total_desc')
+//            {
+//                $this->order = 'total DESC';
+//            }
+//
+//            setcookie('gesdoc_order', $this->order, time() + FS_COOKIES_EXPIRE);
+//        }
+//
+//        /// añadimos segundo nivel de ordenación
+//        $order2 = '';
+//        if (substr($this->order, -4) == 'DESC')
+//        {
+//            $order2 = ', hora DESC, numero DESC';
+//        } else
+//        {
+//            $order2 = ', hora ASC, numero ASC';
+//        }
 
-
-        $this->offset = 0;
-        if (isset($_REQUEST['offset']))
+        // Asignamos los tipos de documentos para el selector
+        $this->tiposdoc = $this->gesdoc->tipos_documentos();
+        
+        // Inicializamos los filtros
+        if (isset($_POST['b_adjunto']) && $_POST['b_adjunto'] != '')
         {
-            $this->offset = intval($_REQUEST['offset']);
+            $this->b_adjunto = 1;
+            $this->gesdoc->filtros($b_adjunto);
         }
-
-        /// primer nivel de ordenación
-        $this->order = 'fecha DESC';
-        if (isset($_GET['order']))
+        
+        // Mostramos listado por tipo de documento
+        if (isset($_POST['tipodoc']) && $_POST['tipodoc'] != '')
         {
-            if ($_GET['order'] == 'fecha_desc')
+            $this->tipodoc = $_POST['tipodoc'];
+            if ($this->tipodoc == 'FC')
             {
-                $this->order = 'fecha DESC';
-            } else if ($_GET['order'] == 'fecha_asc')
+                $this->resultados = $this->gesdoc->all_facturas_clientes();
+            } else if ($this->tipodoc == 'FP')
             {
-                $this->order = 'fecha ASC';
-            } else if ($_GET['order'] == 'vencimiento_desc')
+                $this->resultados = $this->gesdoc->all_facturas_proveedores();
+            } else if ($this->tipodoc == 'AC')
             {
-                $this->order = 'vencimiento DESC';
-            } else if ($_GET['order'] == 'vencimiento_asc')
+                $this->resultados = $this->gesdoc->all_albaranes_clientes();
+            } else if ($this->tipodoc == 'AP')
             {
-                $this->order = 'vencimiento ASC';
-            } else if ($_GET['order'] == 'total_desc')
-            {
-                $this->order = 'total DESC';
+                $this->resultados = $this->gesdoc->all_albaranes_proveedores();
             }
-
-            setcookie('gesdoc_order', $this->order, time() + FS_COOKIES_EXPIRE);
-        }
-
-        /// añadimos segundo nivel de ordenación
-        $order2 = '';
-        if (substr($this->order, -4) == 'DESC')
-        {
-            $order2 = ', hora DESC, numero DESC';
+//            setcookie('gesdoc_tipodoc', $this->order, time() + FS_COOKIES_EXPIRE);
         } else
         {
-            $order2 = ', hora ASC, numero ASC';
+            $this->resultados = $this->gesdoc->all_documentos();
         }
 
-        /// creamos el array resultados con el tipo de documento solicitado
-        if (isset($_GET['tipodoc']))
-        {
-            if ($_GET['tipodoc'] == 'facturacli')
-            {
-                $this->resultados = $this->facturacli->all($this->offset, FS_ITEM_LIMIT, $this->order . $order2);
-            } else if ($_GET['tipodoc'] == 'facturaprov')
-            {
-                $this->resultados = $this->facturaprov->all($this->offset, FS_ITEM_LIMIT, $this->order . $order2);
-            } else if ($_GET['tipodoc'] == 'albarancli')
-            {
-                $this->resultados = $this->facturaprov->all($this->offset, FS_ITEM_LIMIT, $this->order . $order2);
-            } else if ($_GET['tipodoc'] == 'albaranprov')
-            {
-                $this->resultados = $this->facturaprov->all($this->offset, FS_ITEM_LIMIT, $this->order . $order2);
-            }
-
-            setcookie('gesdoc_tipodoc', $this->order, time() + FS_COOKIES_EXPIRE);
-        }
+//
 //        echo '<br/>';
 //        echo '<br/>';
 //        echo '<br/>';
 //        echo '<br/>';
 //        echo '<br/>';
 //        echo '<br/>';
-//        var_dump($this->factura->all());
+//
+//        var_dump($this->resultados);
+//        var_dump($gesdoc_fc);
     }
+
 
 }
