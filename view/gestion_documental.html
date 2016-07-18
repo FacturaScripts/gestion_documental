@@ -41,66 +41,65 @@
             </div>
         </div>
     </div>
-    
+</div>
+
 <div class="container-fluid">
-    
+
     <form name="f_custom_search" action="{$fsc->url()}" method="post" class="form">
         {if="$fsc->cliente"}
         <input type="hidden" name="codcliente" value="{$fsc->cliente->codcliente}"/>
         {else}
         <input type="hidden" name="codcliente"/>
         {/if}
-        
-            <div class="row">
-                <div class="col-sm-2">
-                    <div class="form-group">
-                        <div class="input-group">
-                            <input class="form-control" type="text" name="query" value="{$fsc->query}" autocomplete="off" placeholder="Buscar">
-                            <span class="input-group-btn">
-                                <button class="btn btn-primary hidden-sm" type="submit">
-                                    <span class="glyphicon glyphicon-search"></span>
-                                </button>
-                            </span>
-                        </div>
-                    </div>
-                </div>
 
-                <div class="col-sm-2">
-                    <div class="form-group">
-                        <select name="tipodoc" class="form-control" onchange="this.form.submit()">
-                            <option value="" selected="">Cualquier Tipo de Documento</option>
-                            <option value="">------</option>
-                            {loop="$fsc->tiposdoc"}
-                            {if="$value->codigo==$fsc->tipodoc"}
-                            <option value="{$value->codigo}" selected="">{$value->descripcion}</option>
-                            {else}
-                            <option value="{$value->codigo}">{$value->descripcion}</option>
-                            {/if}
-                            {/loop}
-                        </select>
-                    </div>
-                </div>
-
-                <div class="col-sm-2">
-                    <div class="form-group">
-                        <input type="text" name="desde" value="{$fsc->desde}" class="form-control datepicker" placeholder="Desde" autocomplete="off" onchange="this.form.submit()"/>
-                    </div>
-                </div>
-                <div class="col-sm-2">
-                    <div class="form-group">
-                        <input type="text" name="hasta" value="{$fsc->hasta}" class="form-control datepicker" placeholder="Hasta" autocomplete="off" onchange="this.form.submit()"/>
+        <div class="row">
+            <div class="col-sm-2">
+                <div class="form-group">
+                    <div class="input-group">
+                        <input class="form-control" type="text" name="query" value="{$fsc->query}" autocomplete="off" placeholder="Buscar">
+                        <span class="input-group-btn">
+                            <button class="btn btn-primary hidden-sm" type="submit">
+                                <span class="glyphicon glyphicon-search"></span>
+                            </button>
+                        </span>
                     </div>
                 </div>
             </div>
-            <div class="row">
-                <div class="col-md-offset-2 col-sm-2">
-                    <label class="checkbox-inline">
-                        <input type="checkbox" name="b_adjunto"{if="$fsc->b_adjunto"} checked="checked"{/if} value="TRUE" onchange="this.form.submit()"/>
-                        Con Ajunto
-                        <i class="fa fa-file-o" aria-hidden="true" ></i>
-                    </label>
+
+            <div class="col-sm-2">
+                <div class="form-group">
+                    <select name="tipodoc" class="form-control" onchange="this.form.submit()">
+                        <option value="" selected="">Cualquier Tipo de Documento</option>
+                        <option value="">------</option>
+                        {loop="$fsc->tiposdoc"}
+                        {if="$value->codigo==$fsc->tipodoc"}
+                        <option value="{$value->codigo}" selected="">{$value->descripcion}</option>
+                        {else}
+                        <option value="{$value->codigo}">{$value->descripcion}</option>
+                        {/if}
+                        {/loop}
+                    </select>
                 </div>
             </div>
+
+            <div class="col-sm-2">
+                <div class="form-group">
+                    <input type="text" name="desde" value="{$fsc->fdesde}" class="form-control datepicker" placeholder="Desde" autocomplete="off" onchange="this.form.submit()"/>
+                </div>
+            </div>
+            <div class="col-sm-2">
+                <div class="form-group">
+                    <input type="text" name="hasta" value="{$fsc->fhasta}" class="form-control datepicker" placeholder="Hasta" autocomplete="off" onchange="this.form.submit()"/>
+                </div>
+            </div>
+            <div class="col-sm-2">
+                <select name="b_adjunto" class="form-control" onchange="this.form.submit()">
+                    <option value="0"{if="$fsc->b_adjunto=='0'"} selected=""{/if}>Con adjunto / Sin adjunto</option>
+                    <option value="1"{if="$fsc->b_adjunto=='1'"} selected=""{/if}>Con adjunto</option>
+                    <option value="2"{if="$fsc->b_adjunto=='2'"} selected=""{/if}>Sin adjunto</option>
+                </select>
+            </div>
+        </div>
 
     </form>
 

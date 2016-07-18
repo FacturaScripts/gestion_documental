@@ -21,8 +21,7 @@ require_model('documento_factura.php');
  *
  * @author Angel Albiach
  */
-class gestion_documental extends fs_controller
-{
+class gestion_documental extends fs_controller {
 
 //    public $codserie;
     public $serie;
@@ -30,22 +29,24 @@ class gestion_documental extends fs_controller
     public $resultados;
     public $offset;
     public $b_adjunto;
+    public $fdesde;
+    public $fhasta;
 
-    public function __construct()
-    {
+    public function __construct() {
         parent::__construct(__CLASS__, 'Gesti&oacute;n Documental', 'compras', FALSE, TRUE, FALSE);
     }
 
-    protected function private_core()
-    {
+    protected function private_core() {
 
 //        $this->facturacli  = new factura_cliente();
 //        $this->facturaprov = new factura_proveedor();
 //        $this->albarancli  = new albaran_cliente();
 //        $this->albaranprov = new albaran_proveedor();
 //        $this->docfactura  = new documento_factura();
-        $this->gesdoc      = new gestion_documento();
-        
+        $this->gesdoc = new gestion_documento();
+        $this->fdesde = Date('1-m-Y');
+        $this->fhasta = Date('d-m-Y');
+
 //        $this->offset      = 0;
 //        if (isset($_REQUEST['offset']))
 //        {
@@ -85,51 +86,33 @@ class gestion_documental extends fs_controller
 //        {
 //            $order2 = ', hora ASC, numero ASC';
 //        }
-
         // Asignamos los tipos de documentos para el selector
         $this->tiposdoc = $this->gesdoc->tipos_documentos();
-        
+
         // Inicializamos los filtros
-        if (isset($_POST['b_adjunto']) && $_POST['b_adjunto'] != '')
-        {
-            $this->b_adjunto = 1;
-            $this->gesdoc->filtros($b_adjunto);
+        if (isset($_POST['b_adjunto']) && $_POST['b_adjunto'] != '') {
+            $this->b_adjunto = $_POST['b_adjunto'];
+            $this->gesdoc->filtros($this->b_adjunto);
         }
-        
+
         // Mostramos listado por tipo de documento
-        if (isset($_POST['tipodoc']) && $_POST['tipodoc'] != '')
-        {
+        if (isset($_POST['tipodoc']) && $_POST['tipodoc'] != '') {
             $this->tipodoc = $_POST['tipodoc'];
-            if ($this->tipodoc == 'FC')
-            {
-                $this->resultados = $this->gesdoc->all_facturas_clientes();
-            } else if ($this->tipodoc == 'FP')
-            {
-                $this->resultados = $this->gesdoc->all_facturas_proveedores();
-            } else if ($this->tipodoc == 'AC')
-            {
-                $this->resultados = $this->gesdoc->all_albaranes_clientes();
-            } else if ($this->tipodoc == 'AP')
-            {
-                $this->resultados = $this->gesdoc->all_albaranes_proveedores();
+            if ($this->tipodoc == 'FC') {
+                $this->resultados = $this->gesdoc->all_facturas_clientes($_POST['desde'], $_POST['hasta']);
+            } else if ($this->tipodoc == 'FP') {
+                $this->resultados = $this->gesdoc->all_facturas_proveedores($_POST['desde'], $_POST['hasta']);
+            } else if ($this->tipodoc == 'AC') {
+                $this->resultados = $this->gesdoc->all_albaranes_clientes($_POST['desde'], $_POST['hasta']);
+            } else if ($this->tipodoc == 'AP') {
+                $this->resultados = $this->gesdoc->all_albaranes_proveedores($_POST['desde'], $_POST['hasta']);
             }
-//            setcookie('gesdoc_tipodoc', $this->order, time() + FS_COOKIES_EXPIRE);
-        } else
-        {
-            $this->resultados = $this->gesdoc->all_documentos();
+        } else {
+            $this->resultados = $this->gesdoc->all_documentos($_POST['desde'], $_POST['hasta']);
         }
 
-//
-//        echo '<br/>';
-//        echo '<br/>';
-//        echo '<br/>';
-//        echo '<br/>';
-//        echo '<br/>';
-//        echo '<br/>';
-//
-//        var_dump($this->resultados);
-//        var_dump($gesdoc_fc);
+        $this->fdesde = $_POST['desde'];
+        $this->fhasta = $_POST['hasta'];
     }
-
 
 }
