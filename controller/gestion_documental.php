@@ -21,7 +21,8 @@ require_model('documento_factura.php');
  *
  * @author Angel Albiach
  */
-class gestion_documental extends fs_controller {
+class gestion_documental extends fs_controller
+{
 
 //    public $codserie;
     public $serie;
@@ -29,24 +30,24 @@ class gestion_documental extends fs_controller {
     public $resultados;
     public $offset;
     public $b_adjunto;
-    public $fdesde;
-    public $fhasta;
+    public $filtros;
 
-    public function __construct() {
+    public function __construct()
+    {
         parent::__construct(__CLASS__, 'Gesti&oacute;n Documental', 'compras', FALSE, TRUE, FALSE);
     }
 
-    protected function private_core() {
+    protected function private_core()
+    {
 
 //        $this->facturacli  = new factura_cliente();
 //        $this->facturaprov = new factura_proveedor();
 //        $this->albarancli  = new albaran_cliente();
 //        $this->albaranprov = new albaran_proveedor();
 //        $this->docfactura  = new documento_factura();
-        $this->gesdoc = new gestion_documento();
-        $this->fdesde = Date('1-m-Y');
-        $this->fhasta = Date('d-m-Y');
-
+        $this->gesdoc   = new gestion_documento();
+//        $this->fdesde = Date('1-m-Y');
+//        $this->fhasta = Date('d-m-Y');
 //        $this->offset      = 0;
 //        if (isset($_REQUEST['offset']))
 //        {
@@ -89,30 +90,79 @@ class gestion_documental extends fs_controller {
         // Asignamos los tipos de documentos para el selector
         $this->tiposdoc = $this->gesdoc->tipos_documentos();
 
+
+
         // Inicializamos los filtros
-        if (isset($_POST['b_adjunto']) && $_POST['b_adjunto'] != '') {
-            $this->b_adjunto = $_POST['b_adjunto'];
-            $this->gesdoc->filtros($this->b_adjunto);
+        if (isset($_POST['b_adjunto']) && $_POST['b_adjunto'] != '')
+        {
+            $this->gesdoc->set_filtros('b_adjunto', $_POST['b_adjunto']);
         }
+        if (isset($_POST['desde']) && $_POST['desde'] != '')
+        {
+            $this->gesdoc->set_filtros('b_fdesde', $_POST['desde']);
+        }
+        if (isset($_POST['hasta']) && $_POST['hasta'] != '')
+        {
+            $this->gesdoc->set_filtros('b_fhasta', $_POST['hasta']);
+        }
+        $this->filtros = $this->gesdoc->filtros;
 
         // Mostramos listado por tipo de documento
-        if (isset($_POST['tipodoc']) && $_POST['tipodoc'] != '') {
+        if (isset($_POST['tipodoc']) && $_POST['tipodoc'] != '')
+        {
             $this->tipodoc = $_POST['tipodoc'];
-            if ($this->tipodoc == 'FC') {
-                $this->resultados = $this->gesdoc->all_facturas_clientes($_POST['desde'], $_POST['hasta']);
-            } else if ($this->tipodoc == 'FP') {
-                $this->resultados = $this->gesdoc->all_facturas_proveedores($_POST['desde'], $_POST['hasta']);
-            } else if ($this->tipodoc == 'AC') {
-                $this->resultados = $this->gesdoc->all_albaranes_clientes($_POST['desde'], $_POST['hasta']);
-            } else if ($this->tipodoc == 'AP') {
-                $this->resultados = $this->gesdoc->all_albaranes_proveedores($_POST['desde'], $_POST['hasta']);
+            if ($this->tipodoc == 'FC')
+            {
+                $this->resultados = $this->gesdoc->all_facturas_clientes();
+            } else if ($this->tipodoc == 'FP')
+            {
+                $this->resultados = $this->gesdoc->all_facturas_proveedores();
+            } else if ($this->tipodoc == 'AC')
+            {
+                $this->resultados = $this->gesdoc->all_albaranes_clientes();
+            } else if ($this->tipodoc == 'AP')
+            {
+                $this->resultados = $this->gesdoc->all_albaranes_proveedores();
             }
-        } else {
-            $this->resultados = $this->gesdoc->all_documentos($_POST['desde'], $_POST['hasta']);
+        } else
+        {
+            $this->resultados = $this->gesdoc->all_documentos();
         }
 
-        $this->fdesde = $_POST['desde'];
-        $this->fhasta = $_POST['hasta'];
+        $returned = $this->get_data('http://fusioerp.local/index.php?page=plantillas_pdf&factura=TRUE&id=1917');
+        
+        file_put_contents('prueba.pdf', $returned);
+//        $this->print_facturacli_pdf('simple', 50, 'prueba.pdf');
     }
 
+    /* gets the data from a URL */
+
+    public function get_data($url)
+    {
+        $ch      = curl_init();
+        $timeout = 5;
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $timeout);
+        $data    = curl_exec($ch);
+        curl_close($ch);
+        return $data;
+    }
+
+//
+//    public function print_facturacli_pdf($tipo, $idfactura, $archivo)
+//    {
+//        $fac           = new factura_cliente();
+//        $factura = $fac->get($idfactura);
+//        if ($factura)
+//        {
+//            $cli       = new cliente();
+//            $cliente = $cli->get($factura->codcliente);
+//        }
+//
+//        
+//        require_once '/plugins/facturacion_base/controller/ventas_imprimir.php';
+//        $print = new ventas_imprimir();
+//        $print->generar_pdf_factura($tipo, $archivo);
+//    }
 }
