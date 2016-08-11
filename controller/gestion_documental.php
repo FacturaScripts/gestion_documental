@@ -5,16 +5,7 @@
  * @copyright 2016, Fusió d'Arts. All Rights Reserved.
  */
 
-require_model('agente.php');
-require_model('articulo.php');
-require_model('cliente.php');
-require_model('proveedor.php');
-require_model('factura_cliente.php');
-require_model('albaran_cliente.php');
-require_model('factura_proveedor.php');
-require_model('albaran_proveedor.php');
 require_model('gestion_documento.php');
-require_model('documento_factura.php');
 
 /**
  * Gestión Documental de los archivos adjuntos a los documentos de facturación
@@ -24,25 +15,18 @@ require_model('documento_factura.php');
 class gestion_documental extends fs_controller
 {
 
-//    public $codserie;
-    public $serie;
     public $tiposdoc;
     public $resultados;
     public $offset;
     public $b_adjunto;
     public $filtros;
-    public $options;
-    
+    public $options;    
     public $docs;
     public $desde;
     public $hasta;
     public $adj;
-    public $url;
-    
-    public $pages;
-    
-    public $facturacli;
-    
+    public $url;    
+    public $pages;    
     public $desc_tipodoc;
     public $tipodoc;
     public $extension;
@@ -55,48 +39,8 @@ class gestion_documental extends fs_controller
     protected function private_core()
     {
 
-        $this->facturacli  = new factura_cliente();
-//        $this->facturaprov = new factura_proveedor();
-//        $this->albarancli  = new albaran_cliente();
-//        $this->albaranprov = new albaran_proveedor();
-//        $this->docfactura  = new documento_factura();
-        $this->gesdoc   = new gestion_documento();
-//        $this->fdesde = Date('1-m-Y');
-//        $this->fhasta = Date('d-m-Y');
-//
-//        /// primer nivel de ordenación
-//        $this->order = 'fecha DESC';
-//        if (isset($_GET['order']))
-//        {
-//            if ($_GET['order'] == 'fecha_desc')
-//            {
-//                $this->order = 'fecha DESC';
-//            } else if ($_GET['order'] == 'fecha_asc')
-//            {
-//                $this->order = 'fecha ASC';
-//            } else if ($_GET['order'] == 'vencimiento_desc')
-//            {
-//                $this->order = 'vencimiento DESC';
-//            } else if ($_GET['order'] == 'vencimiento_asc')
-//            {
-//                $this->order = 'vencimiento ASC';
-//            } else if ($_GET['order'] == 'total_desc')
-//            {
-//                $this->order = 'total DESC';
-//            }
-//
-//            setcookie('gesdoc_order', $this->order, time() + FS_COOKIES_EXPIRE);
-//        }
-//
-//        /// añadimos segundo nivel de ordenación
-//        $order2 = '';
-//        if (substr($this->order, -4) == 'DESC')
-//        {
-//            $order2 = ', hora DESC, numero DESC';
-//        } else
-//        {
-//            $order2 = ', hora ASC, numero ASC';
-//        }
+        $this->gesdoc = new gestion_documento();
+        
         // Asignamos los tipos de documentos para el selector
         $this->tiposdoc = $this->gesdoc->tipos_documentos();
         
@@ -233,12 +177,6 @@ class gestion_documental extends fs_controller
             }
         }
         
-        if ($this->tipodoc) {
-            $doc = $this->tipodoc;
-        } else if ($this->docs) {
-            $doc = $this->docs;
-        }
-        
         if ($this->adj == '1') {
             $sql_res = 'documentosfac as d, '.$tabla.' as f WHERE f.'.$id.' = d.'.$id.' ';
             $sql_pages = ', documentosfac as d WHERE f.'.$id.' = d.'.$id.' ';           
@@ -250,7 +188,7 @@ class gestion_documental extends fs_controller
             $sql_pages = '';
         }
         
-        $res = $this->gesdoc->get_documents($sql, $sql_res, $sql_pages, $this->offset, $doc, $this->adj, $tabla, $id);
+        $res = $this->gesdoc->get_documents($sql, $sql_res, $sql_pages, $this->offset, $this->adj, $tabla, $id);
         $this->resultados = $res[0];
         $this->pages = $res[1];
         
@@ -264,24 +202,7 @@ class gestion_documental extends fs_controller
             $this->url .= '&hasta=' . $this->hasta;
             $this->url .= '&adjunto=' . $this->adj;
         }
-
-        $returned = $this->get_data('http://fusioerp.local/index.php?page=plantillas_pdf&factura=TRUE&id=1917');
         
-        file_put_contents('prueba.pdf', $returned);
-//        $this->print_facturacli_pdf('simple', 50, 'prueba.pdf');
-    }
-
-    /* gets the data from a URL */
-    public function get_data($url)
-    {
-        $ch      = curl_init();
-        $timeout = 5;
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $timeout);
-        $data    = curl_exec($ch);
-        curl_close($ch);
-        return $data;
     }
    
     public function paginas()
@@ -293,7 +214,6 @@ class gestion_documental extends fs_controller
         $num = 0;
         $actual = 1;
         $total = intval($this->pages[0]['total']);
-//        $total = count($this->resultados);
 
         /// añadimos todas la página
         while ($num < $total) {
@@ -330,21 +250,5 @@ class gestion_documental extends fs_controller
             return array();
         }
     }
-
-//
-//    public function print_facturacli_pdf($tipo, $idfactura, $archivo)
-//    {
-//        $fac           = new factura_cliente();
-//        $factura = $fac->get($idfactura);
-//        if ($factura)
-//        {
-//            $cli       = new cliente();
-//            $cliente = $cli->get($factura->codcliente);
-//        }
-//
-//        
-//        require_once '/plugins/facturacion_base/controller/ventas_imprimir.php';
-//        $print = new ventas_imprimir();
-//        $print->generar_pdf_factura($tipo, $archivo);
-//    }
+    
 }
