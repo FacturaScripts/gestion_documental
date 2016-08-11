@@ -194,6 +194,8 @@ class gestion_documental extends fs_controller
         
         foreach ($this->resultados as $i=>$r) {
             $this->resultados[$i]['extension'] = substr(strrchr($r['doc_nombre'], '.'), 1);
+            $this->resultados[$i]['fecha'] = date('d-m-Y', strtotime($this->resultados[$i]['fecha']));
+            $this->resultados[$i]['doc_fecha'] = date('d-m-Y', strtotime($this->resultados[$i]['doc_fecha']));
         }
         
         if ($this->filtros) {

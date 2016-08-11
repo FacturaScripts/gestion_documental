@@ -23,6 +23,9 @@
     }
     .leyenda{font-size:20px;}
     .table-gesdoc th{border: 1px solid #fff;}
+    .table-gesdoc tr td i {
+        font-size: 18px;
+    }
 </style>
 
 <div class="container-fluid">
@@ -142,16 +145,12 @@
                 <table class="table table-hover table-gesdoc">
                     <thead>
                         <tr>
-                            <th colspan="3" class="alert-warning text-left"><i class="fa fa-file-text-o" aria-hidden="true"></i>&nbsp;Tipo Doc.</th>
-<!--                            <th class="alert-warning text-left"></th>
-                            <th class="alert-warning text-left"></th>-->
+                            <th colspan="3" class="alert-warning text-left">Fecha</th>
                             <th class="alert-warning text-left">Código + {#FS_NUMERO2#}</th>
                             <th class="alert-warning text-left">Nombre</th>
                             <th class="alert-warning text-left">Observaciones</th>
-                            <!--<th class="alert-success text-right"></th>-->
                             <th colspan="2" class="alert-success text-right">Nombre Archivo.</th>
                             <th colspan="2"  class="alert-success text-center">Adjuntado Día y Hora</th>
-<!--                            <th class="alert-success text-left">Hora</th>-->
                             <th class="alert-success text-right">Tamaño</th>
                             <th class="alert-success text-right">Usuario</th>
                         </tr>
@@ -159,7 +158,7 @@
                     {loop="$fsc->resultados"}
                     <tr class="">
                         <td class="text-left">
-                            {$fsc->desc_tipodoc}
+                            {$value['fecha']}
                         </td>
                         <td class="text-left">
                         </td>
@@ -190,11 +189,11 @@
                                     <a href="{$value['ruta']}" target="_blank"
                                        data-toggle="popover" data-html="true" 
                                        data-img="{$value['ruta']}" data-original-title="" title="">
-                                        <i class="fa fa-file-o" aria-hidden="true" ></i>
+                                        <i class="glyphicon glyphicon-download-alt" aria-hidden="true" ></i>
                                     </a>
                                 {else}
                                     <a href="{$value['ruta']}" target="_blank" title="Abrir Documento">
-                                        <i class="fa fa-file-o" aria-hidden="true" ></i>
+                                        <i class="glyphicon glyphicon-download-alt" aria-hidden="true" ></i>
                                     </a>
                                 {/if}
                             {/if}
