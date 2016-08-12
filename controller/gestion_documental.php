@@ -20,7 +20,6 @@ class gestion_documental extends fs_controller
     public $offset;
     public $b_adjunto;
     public $filtros;
-    public $options;    
     public $docs;
     public $desde;
     public $hasta;
@@ -30,6 +29,7 @@ class gestion_documental extends fs_controller
     public $desc_tipodoc;
     public $tipodoc;
     public $extension;
+    public $doc_url;
 
     public function __construct()
     {
@@ -43,8 +43,6 @@ class gestion_documental extends fs_controller
         
         // Asignamos los tipos de documentos para el selector
         $this->tiposdoc = $this->gesdoc->tipos_documentos();
-        
-        $this->url = $this->url();
 
         $this->offset = 0;
         if (isset($_REQUEST['offset'])) {
@@ -104,7 +102,6 @@ class gestion_documental extends fs_controller
         }
         
         $this->filtros = $this->gesdoc->filtros;
-        $this->options = '';
         
         if (isset($_REQUEST['tipodoc'])) {
             $this->docs = $_REQUEST['tipodoc'];
@@ -141,28 +138,32 @@ class gestion_documental extends fs_controller
         
         if ($this->tipodoc == 'FC' || $this->docs == 'FC')
         {
-            $this->options .= '&facturacli=true';
             $this->desc_tipodoc = 'Factura Cliente';
             $tabla = 'facturascli';
             $id = 'idfactura';
+            $id2 = 'idfactura';
+            $mainpage = 'ventas';
         } else if ($this->tipodoc == 'FP' || $this->docs == 'FP')
         {
-            $this->options .= '&facturaprov=true';
             $this->desc_tipodoc = 'Factura Proveedor';
             $tabla = 'facturasprov';
             $id = 'idfactura';
+            $id2 = 'idfacturaprov';
+            $mainpage = 'compras';
         } else if ($this->tipodoc == 'AC' || $this->docs == 'AC')
         {
-            $this->options .= '&albarancli=true';
             $this->desc_tipodoc = 'Albarán Cliente';
             $tabla = 'albaranescli';
             $id = 'idalbaran';
+            $id2 = 'idalbaran';
+            $mainpage = 'ventas';
         } else if ($this->tipodoc == 'AP' || $this->docs == 'AP')
         {
-            $this->options .= '&albaranprov=true';
             $this->desc_tipodoc = 'Albarán Proveedor';
             $tabla = 'albaranesprov';
             $id = 'idalbaran';
+            $id2 = 'idalbaranprov';
+            $mainpage = 'compras';
         }
         
         if ($this->adj != '0') {
@@ -178,13 +179,13 @@ class gestion_documental extends fs_controller
         }
         
         if ($this->adj == '1') {
-            $sql_res = 'documentosfac as d, '.$tabla.' as f WHERE f.'.$id.' = d.'.$id.' ';
-            $sql_pages = ', documentosfac as d WHERE f.'.$id.' = d.'.$id.' ';           
+            $sql_res = 'documentosfac as d, '.$tabla.' as f WHERE f.'.$id.' = d.'.$id2.' ';
+            $sql_pages = ', documentosfac as d WHERE f.'.$id.' = d.'.$id2.' ';           
         } else if ($this->adj == '2') {
-            $sql_res = $tabla.' as f LEFT JOIN documentosfac as d ON f.'.$id.' = d.'.$id.' WHERE d.'.$id.' IS NULL ';
-            $sql_pages = ' LEFT JOIN documentosfac as d ON f.'.$id.' = d.'.$id.' WHERE d.'.$id.' IS NULL ';
+            $sql_res = $tabla.' as f LEFT JOIN documentosfac as d ON f.'.$id.' = d.'.$id2.' WHERE d.'.$id2.' IS NULL ';
+            $sql_pages = ' LEFT JOIN documentosfac as d ON f.'.$id.' = d.'.$id2.' WHERE d.'.$id2.' IS NULL ';
         } else {
-            $sql_res = $tabla.' as f LEFT JOIN documentosfac as d ON d.'.$id.' = f.'.$id.' ';
+            $sql_res = $tabla.' as f LEFT JOIN documentosfac as d ON d.'.$id2.' = f.'.$id.' ';
             $sql_pages = '';
         }
         
@@ -192,10 +193,13 @@ class gestion_documental extends fs_controller
         $this->resultados = $res[0];
         $this->pages = $res[1];
         
+        $pagina = explode('id', $id);
+        
         foreach ($this->resultados as $i=>$r) {
             $this->resultados[$i]['extension'] = substr(strrchr($r['doc_nombre'], '.'), 1);
             $this->resultados[$i]['fecha'] = date('d-m-Y', strtotime($this->resultados[$i]['fecha']));
             $this->resultados[$i]['doc_fecha'] = date('d-m-Y', strtotime($this->resultados[$i]['doc_fecha']));
+            $this->resultados[$i]['doc_url'] = 'index.php?page='.$mainpage.'_'.$pagina[1].'&id='.$r["$id"];
         }
         
         if ($this->filtros) {
@@ -209,7 +213,7 @@ class gestion_documental extends fs_controller
    
     public function paginas()
     {
-        $url = $this->url;
+        $url = $this->url() . $this->url;
 
         $paginas = array();
         $i = 0;

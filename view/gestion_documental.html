@@ -23,7 +23,7 @@
     }
     .leyenda{font-size:20px;}
     .table-gesdoc th{border: 1px solid #fff;}
-    .table-gesdoc tr td i {
+    .table-gesdoc tr td i, .zip {
         font-size: 18px;
     }
 </style>
@@ -129,7 +129,7 @@
                 <div class="btn-group">
                     {loop="$fsc->extensions"}
                         {if="$value->type=='button'"}
-                        <a href="index.php?page={$value->from}{$value->params}{$fsc->options}" class="btn btn-sm btn-default">{$value->text}</a>
+                        <a href="index.php?page={$value->from}{$value->params}{$fsc->url}" class="btn btn-sm btn-default">{$value->text}</a>
                         {/if}
                     {/loop}
                 </div>
@@ -176,7 +176,7 @@
                             <span class="glyphicon glyphicon-send" title="La factura fue enviada por email el {$value->femail}"></span>
                             {/if}
                         </td>
-                        <td><a href="{$value['url']}" target="_blank">{$value['codigo']}</a> {$value['numero2']}</td>
+                        <td><a href="{$value['doc_url']}" target="_blank">{$value['codigo']}</a> {$value['numero2']}</td>
                         <td>
                             {$value['nombrecliente']}
                         </td>
