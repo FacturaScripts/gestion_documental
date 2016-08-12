@@ -129,7 +129,7 @@
                 <div class="btn-group">
                     {loop="$fsc->extensions"}
                         {if="$value->type=='button'"}
-                        <a href="index.php?page={$value->from}{$value->params}{$fsc->url}" class="btn btn-sm btn-default">{$value->text}</a>
+                        <a {if="$fsc->adj!='2'"} href="index.php?page={$value->from}{$value->params}{$fsc->url}"{/if} class="btn btn-sm btn-default" {if="$fsc->adj=='2'"} disabled=""{/if}>{$value->text}</a>
                         {/if}
                     {/loop}
                 </div>
