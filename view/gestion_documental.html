@@ -65,12 +65,6 @@
 <div class="container-fluid">
 
     <form name="f_custom_search" action="{$fsc->url()}" method="post" class="form">
-        {if="$fsc->cliente"}
-        <input type="hidden" name="codcliente" value="{$fsc->cliente->codcliente}"/>
-        {else}
-        <input type="hidden" name="codcliente"/>
-        {/if}
-
         <div class="row">
             <div class="col-sm-2">
                 <div class="form-group">
@@ -97,7 +91,7 @@
                         <div class="input-group-addon">
                             <i class="fa fa-file-text-o" aria-hidden="true"></i>
                         </div>
-                        <input type="text" name="desde" value="{if="$fsc->desde"}{$fsc->desde}{else}{$fsc->filtros['b_fdesde']}{/if}" class="form-control datepicker" placeholder="Desde" autocomplete="off" onchange="this.form.submit()"/>
+                        <input type="text" name="desde" value="{if="$fsc->desde"}{$fsc->desde}{/if}" class="form-control datepicker" placeholder="Desde" autocomplete="off" onchange="this.form.submit()"/>
                     </div>
                 </div>
             </div>
@@ -107,7 +101,7 @@
                         <div class="input-group-addon">
                             <i class="fa fa-file-text-o" aria-hidden="true"></i>
                         </div>
-                        <input type="text" name="hasta" value="{if="$fsc->hasta"}{$fsc->hasta}{else}{$fsc->filtros['b_fhasta']}{/if}" class="form-control datepicker" placeholder="Hasta" autocomplete="off" onchange="this.form.submit()"/>
+                        <input type="text" name="hasta" value="{if="$fsc->hasta"}{$fsc->hasta}{/if}" class="form-control datepicker" placeholder="Hasta" autocomplete="off" onchange="this.form.submit()"/>
                     </div>
                 </div>
             </div>
@@ -118,9 +112,9 @@
                             <i class="fa fa-file-o" aria-hidden="true"></i>
                         </div>
                         <select name="b_adjunto" class="form-control" onchange="this.form.submit()">                            
-                            <option value="0"{if="$fsc->filtros['b_adjunto']=='0' || $fsc->adj=='0'"} selected=""{/if}>Todos</option>
-                            <option value="1"{if="$fsc->filtros['b_adjunto']=='1' || $fsc->adj=='1'"} selected=""{/if}>Con adjunto</option>
-                            <option value="2"{if="$fsc->filtros['b_adjunto']=='2' || $fsc->adj=='2'"} selected=""{/if}>Sin adjunto</option>
+                            <option value="0"{if="$fsc->adj=='0'"} selected=""{/if}>Todos</option>
+                            <option value="1"{if="$fsc->adj=='1'"} selected=""{/if}>Con adjunto</option>
+                            <option value="2"{if="$fsc->adj=='2'"} selected=""{/if}>Sin adjunto</option>
                         </select>                        
                     </div>
                 </div>
@@ -163,22 +157,30 @@
                         <td class="text-left">
                         </td>
                         <td class="text-center">
-                            {if="$value['pagada']"}
-                            <span class="glyphicon glyphicon-ok" title="La factura está pagada"></span>
+                            {if="$fsc->docs=='FC' || $fsc->docs=='FP'"}
+                                {if="$value['pagada']"}
+                                <span class="glyphicon glyphicon-ok" title="La factura está pagada"></span>
+                                {/if}
                             {/if}
-                            {if="$value['anulada']"}
-                            <span class="glyphicon glyphicon-remove" title="La factura está anulada"></span>
+                            {if="$fsc->docs=='FC' || $fsc->docs=='FP'"}
+                                {if="$value['anulada']"}
+                                <span class="glyphicon glyphicon-remove" title="La factura está anulada"></span>
+                                {/if}
                             {/if}
-                            {if="$value['idfacturarect']"}
-                            <span class="glyphicon glyphicon-flag" title="{#FS_FACTURA_RECTIFICATIVA#} de {$value->codigorect}"></span>
+                            {if="$fsc->docs=='FC' || $fsc->docs=='FP'"}
+                                {if="$value['idfacturarect']"}
+                                <span class="glyphicon glyphicon-flag" title="{#FS_FACTURA_RECTIFICATIVA#} de {$value['codigorect']}"></span>
+                                {/if}
                             {/if}
-                            {if="$value['femail']"}
-                            <span class="glyphicon glyphicon-send" title="La factura fue enviada por email el {$value->femail}"></span>
-                            {/if}
+                            {if="$fsc->docs=='FC'"}
+                                {if="$value['femail']"}
+                                <span class="glyphicon glyphicon-send" title="La factura fue enviada por email el {$value['femail']}"></span>
+                                {/if}
+                            {/if}                            
                         </td>
-                        <td><a href="{$value['doc_url']}" target="_blank">{$value['codigo']}</a> {$value['numero2']}</td>
+                        <td><a href="{$value['doc_url']}" target="_blank">{$value['codigo']}</a> {if="$fsc->docs=='FC'"}{$value['numero2']}{/if}</td>
                         <td>
-                            {$value['nombrecliente']}
+                            {if="$fsc->docs=='FC'"}{$value['nombrecliente']}{else}{$value['nombre']}{/if}
                         </td>
 
                         <td>{$value['observaciones']}</td>
@@ -202,12 +204,12 @@
                             {$value['doc_nombre']}
                         </td>
 
-                        <td class="text-right" title="Fecha {$value->df_fecha}">
+                        <td class="text-right" title="Fecha {$value['doc_fecha']}">
                             {if="$value['doc_nombre']!=''"}
                                 {if="$value['doc_fecha']==$fsc->today()"}<b>{$value['doc_fecha']}</b>{else}{$value['doc_fecha']}{/if}
                             {/if}
                         </td>
-                        <td class="text-left" title="Hora {$value->doc_hora}">
+                        <td class="text-left" title="Hora {$value['doc_hora']}">
                             {if="$value['doc_nombre']!=''"}
                                 {$value['doc_hora']}
                             {/if}

@@ -60,7 +60,7 @@ class gestion_documental extends fs_controller
             $this->gesdoc->set_filtros('tipodoc', $_POST['tipodoc']);
         } else if (isset($_GET['docs']) && $_GET['docs'] != '')
         {
-            $this->gesdoc->set_filtros('tipodoc', $_POST['docs']);
+            $this->gesdoc->set_filtros('tipodoc', $_GET['docs']);
         } else
         {
             $this->gesdoc->set_filtros('tipodoc', 'FC');
@@ -109,28 +109,25 @@ class gestion_documental extends fs_controller
             $this->docs = $_GET['docs'];
         }
         
-        if (isset($_GET['desde'])) {
-            $this->desde = $_GET['desde'];
-        } else {
+        if (isset($_REQUEST['desde']) && $_REQUEST['desde'] != '') {
             $this->desde = $this->filtros['b_fdesde'];
         }
         
-        if (isset($_GET['hasta'])) {
-            $this->hasta = $_GET['hasta'];
-        } else {
+        if (isset($_REQUEST['hasta']) && $_REQUEST['hasta'] != '') {
             $this->hasta = $this->filtros['b_fhasta'];
         }
         
-        if (isset($_GET['adjunto'])) {
-            $this->adj = $_GET['adjunto'];
-        } else {
+        if (isset($_GET['adjunto']) && $_GET['adjunto'] != '' || isset($_POST['b_adjunto'])) {
             $this->adj = $this->filtros['b_adjunto'];
         }
 
         // Mostramos listado por tipo de documento
-        if (isset($_POST['tipodoc']) && $_POST['tipodoc'] != '' || isset($_GET['docs']) && $_GET['docs'] != '')
+        if (isset($_POST['tipodoc']) && $_POST['tipodoc'] != '')
         {
             $this->tipodoc = $_POST['tipodoc'];
+        } else if (isset($_GET['docs']) && $_GET['docs'] != '')
+        {
+            $this->tipodoc = $_GET['docs'];
         } else
         {
             $this->tipodoc = 'FC';
@@ -195,11 +192,13 @@ class gestion_documental extends fs_controller
         
         $pagina = explode('id', $id);
         
-        foreach ($this->resultados as $i=>$r) {
-            $this->resultados[$i]['extension'] = substr(strrchr($r['doc_nombre'], '.'), 1);
-            $this->resultados[$i]['fecha'] = date('d-m-Y', strtotime($this->resultados[$i]['fecha']));
-            $this->resultados[$i]['doc_fecha'] = date('d-m-Y', strtotime($this->resultados[$i]['doc_fecha']));
-            $this->resultados[$i]['doc_url'] = 'index.php?page='.$mainpage.'_'.$pagina[1].'&id='.$r["$id"];
+        if (!empty($this->resultados)) {
+            foreach ($this->resultados as $i=>$r) {
+                $this->resultados[$i]['extension'] = substr(strrchr($r['doc_nombre'], '.'), 1);
+                $this->resultados[$i]['fecha'] = date('d-m-Y', strtotime($this->resultados[$i]['fecha']));
+                $this->resultados[$i]['doc_fecha'] = date('d-m-Y', strtotime($this->resultados[$i]['doc_fecha']));
+                $this->resultados[$i]['doc_url'] = 'index.php?page='.$mainpage.'_'.$pagina[1].'&id='.$r["$id"];
+            }
         }
         
         if ($this->filtros) {
@@ -209,6 +208,7 @@ class gestion_documental extends fs_controller
             $this->url .= '&adjunto=' . $this->adj;
         }
         
+//        var_dump($this->resultados);
     }
    
     public function paginas()
