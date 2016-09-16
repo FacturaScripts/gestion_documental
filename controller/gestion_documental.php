@@ -33,7 +33,7 @@ class gestion_documental extends fs_controller
 
     public function __construct()
     {
-        parent::__construct(__CLASS__, 'Gesti&oacute;n Documental', 'compras', FALSE, TRUE, FALSE);
+        parent::__construct(__CLASS__, 'Principal', 'G. Documental', FALSE, TRUE, FALSE);
     }
 
     protected function private_core()
