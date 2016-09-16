@@ -95,8 +95,14 @@ class gestion_documento extends fs_model
         } else if ($sql != '' && $adjunto == '0') {
             $wh = ' WHERE ' . $sql;
         }
+
+        if ($tabla == "facturascli" || $tabla == "albaranescli"){
+            $field_name = "nombrecliente";
+        } else {
+            $field_name = "nombre";
+        }
         
-        $resultados = $this->db->select_limit("SELECT f.*, d.*, f.".$id." as ".$id.", f.fecha as fecha, f.nombre as nombre, d.nombre as doc_nombre, d.fecha as doc_fecha, d.hora as doc_hora FROM " . $sql_res . $wh . " ORDER BY f.fecha DESC, f.codigo DESC ", FS_ITEM_LIMIT, $offset);
+        $resultados = $this->db->select_limit("SELECT f.*, d.*, f.".$id." as ".$id.", f.fecha as fecha, f.".$field_name." as nombre, d.nombre as doc_nombre, d.fecha as doc_fecha, d.hora as doc_hora FROM " . $sql_res . $wh . " ORDER BY f.fecha DESC, f.codigo DESC ", FS_ITEM_LIMIT, $offset);
         $pages = $this->db->select("SELECT COUNT(f.".$id.") as total FROM ".$tabla." as f " . $sql_pages . $wh . ";");
 
         return array($resultados, $pages);
