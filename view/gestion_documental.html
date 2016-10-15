@@ -26,6 +26,13 @@
     .table-gesdoc tr td i, .zip {
         font-size: 18px;
     }
+    .filters .btn-group {
+        margin-top:23px;
+    }
+    .filters .btn-group i {
+        padding: 3px 4px;
+        
+    }
 </style>
 
 <div class="container-fluid">
@@ -51,23 +58,35 @@
                     </span>
                 </h1>
                 <p class="help-block"><span class="glyphicon glyphicon-exclamation-sign"></span>&nbsp;Gestiona los archivos adjuntos a los documentos de facturación.</p>
-                <hr>
-                <p class="leyenda help-block">
-                    Leyenda:
-                    <span class="label label-warning"><i class="fa fa-file-text-o" aria-hidden="true"></i>&nbsp;Datos relativos a los Documentos de Facturación</span>
-                    <span class="label label-success"><i class="fa fa-file-o" aria-hidden="true"></i>&nbsp;Datos relativos a los Archivos Adjuntos</span>
-                </p>
             </div>
         </div>
+        <div class="col-sm-10"></div>
     </div>
+    <div class="row">
+        <div class="col-sm-9">
+            <p class="leyenda help-block">
+                Leyenda:
+                <span class="label label-warning"><i class="fa fa-file-text-o" aria-hidden="true"></i>&nbsp;Datos y filtros relativos a los Documentos de Facturación</span>
+                <span class="label label-success"><i class="fa fa-file-o" aria-hidden="true"></i>&nbsp;Datos y filtros relativos a los Archivos Adjuntos</span>
+            </p>
+        </div>
+        <div class="col-sm-3">
+            <p class="leyenda help-block">
+                Opciones
+                <a href="index.php?page=gestion_documental_config"> <i class="fa fa-cogs btn btn-primary"></i></a>
+            </p>
+        </div>
+    </div>
+    <hr>
 </div>
 
-<div class="container-fluid">
+<div class="container-fluid filters">
 
     <form name="f_custom_search" action="{$fsc->url()}" method="post" class="form">
         <div class="row">
             <div class="col-sm-2">
                 <div class="form-group">
+                    <label>Tipo de Documento</label>
                     <div class="input-group has-warning">
                         <div class="input-group-addon ">
                             <i class="fa fa-file-text-o" aria-hidden="true"></i>
@@ -87,6 +106,7 @@
 
             <div class="col-sm-2">
                 <div class="form-group">
+                    <label>Fecha Desde</label>
                     <div class="input-group has-warning">
                         <div class="input-group-addon">
                             <i class="fa fa-file-text-o" aria-hidden="true"></i>
@@ -97,6 +117,7 @@
             </div>
             <div class="col-sm-2">
                 <div class="form-group">
+                    <label>Fecha Hasta</label>
                     <div class="input-group has-warning">
                         <div class="input-group-addon">
                             <i class="fa fa-file-text-o" aria-hidden="true"></i>
@@ -107,6 +128,7 @@
             </div>
             <div class="col-sm-2">
                 <div class="form-group">
+                    <label>Adjunto</label>
                     <div class="input-group has-success">
                         <div class="input-group-addon">
                             <i class="fa fa-file-o" aria-hidden="true"></i>
@@ -122,9 +144,9 @@
             <div class="col-sm-2">
                 <div class="btn-group">
                     {loop="$fsc->extensions"}
-                        {if="$value->type=='button'"}
-                        <a {if="$fsc->adj!='2'"} href="index.php?page={$value->from}{$value->params}{$fsc->url}"{/if} class="btn btn-sm btn-default" {if="$fsc->adj=='2'"} disabled=""{/if}>{$value->text}</a>
-                        {/if}
+                    {if="$value->type=='button'"}
+                    <a {if="$fsc->adj!='2'"} href="index.php?page={$value->from}{$value->params}{$fsc->url}"{/if} class="btn btn-sm btn-default" {if="$fsc->adj=='2'"} disabled=""{/if}>{$value->text}</a>
+                    {/if}
                     {/loop}
                 </div>
             </div>
@@ -139,14 +161,14 @@
                 <table class="table table-hover table-gesdoc">
                     <thead>
                         <tr>
-                            <th colspan="3" class="alert-warning text-left">Fecha</th>
-                            <th class="alert-warning text-left">Código + {#FS_NUMERO2#}</th>
-                            <th class="alert-warning text-left">Nombre</th>
-                            <th class="alert-warning text-left">Observaciones</th>
-                            <th colspan="2" class="alert-success text-right">Nombre Archivo.</th>
-                            <th colspan="2"  class="alert-success text-center">Adjuntado Día y Hora</th>
-                            <th class="alert-success text-right">Tamaño</th>
-                            <th class="alert-success text-right">Usuario</th>
+                            <th width="10%" colspan="3" class="alert-warning text-left">Fecha</th>
+                            <th width="10%" class="alert-warning text-left">Código + {#FS_NUMERO2#}</th>
+                            <th width="20%" class="alert-warning text-left">Nombre</th>
+                            <th width="28%" class="alert-warning text-left">Observaciones</th>
+                            <th width="10%" colspan="2" class="alert-success text-right">Nombre Archivo.</th>
+                            <th width="12%" colspan="2"  class="alert-success text-center">Adjuntado Día y Hora</th>
+                            <th width="5%" class="alert-success text-right">Tamaño</th>
+                            <th width="5%" class="alert-success text-right">Usuario</th>
                         </tr>
                     </thead>
                     {loop="$fsc->resultados"}
@@ -158,24 +180,24 @@
                         </td>
                         <td class="text-center">
                             {if="$fsc->docs=='FC' || $fsc->docs=='FP'"}
-                                {if="$value['pagada']"}
-                                <span class="glyphicon glyphicon-ok" title="La factura está pagada"></span>
-                                {/if}
+                            {if="$value['pagada']"}
+                            <span class="glyphicon glyphicon-ok" title="La factura está pagada"></span>
+                            {/if}
                             {/if}
                             {if="$fsc->docs=='FC' || $fsc->docs=='FP'"}
-                                {if="$value['anulada']"}
-                                <span class="glyphicon glyphicon-remove" title="La factura está anulada"></span>
-                                {/if}
+                            {if="$value['anulada']"}
+                            <span class="glyphicon glyphicon-remove" title="La factura está anulada"></span>
+                            {/if}
                             {/if}
                             {if="$fsc->docs=='FC' || $fsc->docs=='FP'"}
-                                {if="$value['idfacturarect']"}
-                                <span class="glyphicon glyphicon-flag" title="{#FS_FACTURA_RECTIFICATIVA#} de {$value['codigorect']}"></span>
-                                {/if}
+                            {if="$value['idfacturarect']"}
+                            <span class="glyphicon glyphicon-flag" title="{#FS_FACTURA_RECTIFICATIVA#} de {$value['codigorect']}"></span>
+                            {/if}
                             {/if}
                             {if="$fsc->docs=='FC'"}
-                                {if="$value['femail']"}
-                                <span class="glyphicon glyphicon-send" title="La factura fue enviada por email el {$value['femail']}"></span>
-                                {/if}
+                            {if="$value['femail']"}
+                            <span class="glyphicon glyphicon-send" title="La factura fue enviada por email el {$value['femail']}"></span>
+                            {/if}
                             {/if}                            
                         </td>
                         <td><a href="{$value['doc_url']}" target="_blank">{$value['codigo']}</a> {if="$fsc->docs=='FC'"}{$value['numero2']}{/if}</td>
@@ -187,17 +209,17 @@
 
                         <td class="text-right">
                             {if="$value['id']"}
-                                {if="$value['extension'] == 'png' || $value['extension'] == 'jpg' "}
-                                    <a href="{$value['ruta']}" target="_blank"
-                                       data-toggle="popover" data-html="true" 
-                                       data-img="{$value['ruta']}" data-original-title="" title="">
-                                        <i class="glyphicon glyphicon-download-alt" aria-hidden="true" ></i>
-                                    </a>
-                                {else}
-                                    <a href="{$value['ruta']}" target="_blank" title="Abrir Documento">
-                                        <i class="glyphicon glyphicon-download-alt" aria-hidden="true" ></i>
-                                    </a>
-                                {/if}
+                            {if="$value['extension'] == 'png' || $value['extension'] == 'jpg' "}
+                            <a href="{$value['ruta']}" target="_blank"
+                               data-toggle="popover" data-html="true" 
+                               data-img="{$value['ruta']}" data-original-title="" title="">
+                                <i class="glyphicon glyphicon-download-alt" aria-hidden="true" ></i>
+                            </a>
+                            {else}
+                            <a href="{$value['ruta']}" target="_blank" title="Abrir Documento">
+                                <i class="glyphicon glyphicon-download-alt" aria-hidden="true" ></i>
+                            </a>
+                            {/if}
                             {/if}
                         </td>
                         <td class="text-right">
@@ -206,12 +228,12 @@
 
                         <td class="text-right" title="Fecha {$value['doc_fecha']}">
                             {if="$value['doc_nombre']!=''"}
-                                {if="$value['doc_fecha']==$fsc->today()"}<b>{$value['doc_fecha']}</b>{else}{$value['doc_fecha']}{/if}
+                            {if="$value['doc_fecha']==$fsc->today()"}<b>{$value['doc_fecha']}</b>{else}{$value['doc_fecha']}{/if}
                             {/if}
                         </td>
                         <td class="text-left" title="Hora {$value['doc_hora']}">
                             {if="$value['doc_nombre']!=''"}
-                                {$value['doc_hora']}
+                            {$value['doc_hora']}
                             {/if}
                         </td>
                         <td class="text-right">
@@ -229,13 +251,13 @@
                 </table>
             </div>
             <div class="text-center">
-               <ul class="pagination">
-                  {loop="$fsc->paginas()"}
-                  <li{if="$value['actual']"} class="active"{/if}>
-                     <a href="{$value['url']}">{$value['num']}</a>
-                  </li>
-                  {/loop}
-               </ul>
+                <ul class="pagination">
+                    {loop="$fsc->paginas()"}
+                    <li{if="$value['actual']"} class="active"{/if}>
+                        <a href="{$value['url']}">{$value['num']}</a>
+                    </li>
+                    {/loop}
+                </ul>
             </div>
         </div>
     </div>

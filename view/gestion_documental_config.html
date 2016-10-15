@@ -1,0 +1,76 @@
+{include="header"}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="page-header">
+                <h1>
+                    <i class="fa fa-file-text-o" aria-hidden="true"></i>
+                    Opciones Gestión Documental
+                    <span class="btn-group">
+                        <a class="btn btn-xs btn-default" href="{$fsc->url()}" title="Recargar la página">
+                            <span class="glyphicon glyphicon-refresh"></span>
+                        </a>
+                        {if="$fsc->page->is_default()"}
+                        <a class="btn btn-xs btn-default active" href="{$fsc->url()}&amp;default_page=FALSE" title="desmarcar como página de inicio">
+                            <span class="glyphicon glyphicon-home"></span>
+                        </a>
+                        {else}
+                        <a class="btn btn-xs btn-default" href="{$fsc->url()}&amp;default_page=TRUE" title="marcar como página de inicio">
+                            <span class="glyphicon glyphicon-home"></span>
+                        </a>
+                        {/if}
+                    </span>
+                </h1>
+                <p class="help-block"><span class="glyphicon glyphicon-exclamation-sign"></span>&nbsp;Configuración de filtros por defectos y opciones</p>
+            </div>
+        </div>
+        <div class="col-sm-10"></div>
+    </div>
+
+    <form name="f_custom_search" action="{$fsc->url()}" method="post" class="form">
+        <div class="row">
+            <div class="col-sm-12 text-right">
+                <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled = true;
+                    this.form.submit();">
+                    <span class="glyphicon glyphicon-floppy-disk"></span>
+                    <span class="hidden-xs">&nbsp; Guardar</span>
+                </button>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-2">
+                <div class="form-group">
+                    <label for="exampleInputPassword1">
+                        Tipo de Documento
+                    </label>
+                    <div class="input-group has-warning">
+                        <div class="input-group-addon ">
+                            <i class="fa fa-file-text-o" aria-hidden="true"></i>
+                        </div>
+                        <select name="tipodoc" class="form-control">
+                            {loop="$fsc->tiposdoc"}
+                            {if="$value->codigo==$fsc->docs"}
+                            <option value="{$value->codigo}" selected="">{$value->descripcion}</option>
+                            {else}
+                            <option value="{$value->codigo}">{$value->descripcion}</option>
+                            {/if}
+                            {/loop}
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-2">
+                <!--                <div class="form-group">
+                
+                                    <label for="exampleInputPassword1">
+                                        Password
+                                    </label>
+                                    <input type="password" class="form-control" id="exampleInputPassword1" />
+                                </div>-->
+            </div>
+        </div>
+    </form>
+</div>
+
+{include="footer"}
