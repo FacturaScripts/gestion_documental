@@ -31,7 +31,7 @@
     }
     .filters .btn-group i {
         padding: 3px 4px;
-        
+
     }
 </style>
 
@@ -77,13 +77,12 @@
             </p>
         </div>
     </div>
-    <hr>
 </div>
 
+<br/>
 <div class="container-fluid filters">
-
-    <form name="f_custom_search" action="{$fsc->url()}" method="post" class="form">
-        <div class="row">
+    <div class="row">
+        <form name="f_custom_search" action="{$fsc->url()}" method="post" class="form">
             <div class="col-sm-2">
                 <div class="form-group">
                     <label>Tipo de Documento</label>
@@ -141,18 +140,28 @@
                     </div>
                 </div>
             </div>
-            <div class="col-sm-2">
-                <div class="btn-group">
-                    {loop="$fsc->extensions"}
-                    {if="$value->type=='button'"}
-                    <a {if="$fsc->adj!='2'"} href="index.php?page={$value->from}{$value->params}{$fsc->url}"{/if} class="btn btn-sm btn-default" {if="$fsc->adj=='2'"} disabled=""{/if}>{$value->text}</a>
-                    {/if}
-                    {/loop}
-                </div>
-            </div>
-        </div>
+        </form>
 
-    </form>
+        <form name="generatezip" action="{$fsc->url()}" method="post" class="form">
+            <div class="col-sm-2">
+                <input hidden name="zip" value="1" />
+                <input hidden name="docs" value="{$fsc->docs}" />
+                <input hidden name="b_adjunto" value="{$fsc->adj}" />
+                <input hidden type="text" name="desde" value="{if="$fsc->desde"}{$fsc->desde}{/if}" />
+                <input hidden type="text" name="hasta" value="{if="$fsc->hasta"}{$fsc->hasta}{/if}" />
+                <div>
+                    <label data-toggle="tooltip" data-placement="top" data-original-title="Comprime todos los archivos adjuntos del listado">Generar Zip</label>
+                </div>
+                <button  class="btn btn-success col-sm-4" onclick="this.form.submit()">
+                    <i class="fa fa-file-archive-o"></i>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+<div class="container-fluid ">
 
     <div class="row">
         <div class="col-sm-12">

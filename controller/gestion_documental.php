@@ -55,14 +55,22 @@ class gestion_documental extends fs_controller
         $this->hasta = '';
         $this->adj   = '';
 
+        
+        if (isset($_POST['zip']) && $_POST['zip'] != '')
+        {
+            $this->gesdoc->gestion_documental_avanzada();
+        }
+        
         // Inicializamos los filtros
         if (isset($_POST['tipodoc']) && $_POST['tipodoc'] != '')
         {
             $this->gesdoc->set_filtros('tipodoc', $_POST['tipodoc']);
-        } else if (isset($_GET['docs']) && $_GET['docs'] != '')
-        {
-            $this->gesdoc->set_filtros('tipodoc', $_GET['docs']);
-        } else
+        }
+//        else if (isset($_GET['docs']) && $_GET['docs'] != '')
+//        {
+//            $this->gesdoc->set_filtros('tipodoc', $_GET['docs']);
+//        }
+        else
         {
             $fsvar = new fs_var();
             $this->docs = $fsvar->simple_get('gdoc_tipodoc');
@@ -75,68 +83,79 @@ class gestion_documental extends fs_controller
         if (isset($_POST['b_adjunto']) && $_POST['b_adjunto'] != '')
         {
             $this->gesdoc->set_filtros('b_adjunto', $_POST['b_adjunto']);
-        } else if (isset($_GET['adjunto']) && $_GET['adjunto'] != '')
-        {
-            $this->gesdoc->set_filtros('b_adjunto', $_GET['adjunto']);
-        }
+        } 
+//        else if (isset($_GET['adjunto']) && $_GET['adjunto'] != '')
+//        {
+//            $this->gesdoc->set_filtros('b_adjunto', $_GET['adjunto']);
+//        }
         if (isset($_POST['desde']) && $_POST['desde'] != '')
         {
             $this->gesdoc->set_filtros('b_fdesde', $_POST['desde']);
             $d     = date('Y-m-d', strtotime($_POST['desde']));
             $sql .= $where . " f.fecha >= '" . $d . "'";
             $where = ' AND ';
-        } else if (isset($_GET['desde']) && $_GET['desde'] != '')
-        {
-            $this->gesdoc->set_filtros('b_fdesde', $_GET['desde']);
-            $d     = date('Y-m-d', strtotime($_GET['desde']));
-            $sql .= $where . " f.fecha >= '" . $d . "'";
-            $where = ' AND ';
-        }
+        } 
+//        else if (isset($_GET['desde']) && $_GET['desde'] != '')
+//        {
+//            $this->gesdoc->set_filtros('b_fdesde', $_GET['desde']);
+//            $d     = date('Y-m-d', strtotime($_GET['desde']));
+//            $sql .= $where . " f.fecha >= '" . $d . "'";
+//            $where = ' AND ';
+//        }
         if (isset($_POST['hasta']) && $_POST['hasta'] != '')
         {
             $this->gesdoc->set_filtros('b_fhasta', $_POST['hasta']);
             $h = date('Y-m-d', strtotime($_POST['hasta']));
             $sql .= $where . " f.fecha <= '" . $h . "'";
-        } else if (isset($_GET['hasta']) && $_GET['hasta'] != '')
-        {
-            $this->gesdoc->set_filtros('b_fhasta', $_GET['hasta']);
-            $h = date('Y-m-d', strtotime($_GET['hasta']));
-            $sql .= $where . " f.fecha <= '" . $h . "'";
         }
+//        else if (isset($_GET['hasta']) && $_GET['hasta'] != '')
+//        {
+//            $this->gesdoc->set_filtros('b_fhasta', $_GET['hasta']);
+//            $h = date('Y-m-d', strtotime($_GET['hasta']));
+//            $sql .= $where . " f.fecha <= '" . $h . "'";
+//        }
 
         $this->filtros = $this->gesdoc->filtros;
 
-        if (isset($_REQUEST['tipodoc']))
+        if (isset($_POST['tipodoc']))
         {
-            $this->docs = $_REQUEST['tipodoc'];
-        } else if (isset($_GET['docs']))
-        {
-            $this->docs = $_GET['docs'];
-        }
+            $this->docs = $_POST['tipodoc'];
+        } 
+//        else if (isset($_GET['docs']))
+//        {
+//            $this->docs = $_GET['docs'];
+//        }
 
-        if (isset($_REQUEST['desde']) && $_REQUEST['desde'] != '')
+        if (isset($_POST['desde']) && $_POST['desde'] != '')
         {
             $this->desde = $this->filtros['b_fdesde'];
         }
 
-        if (isset($_REQUEST['hasta']) && $_REQUEST['hasta'] != '')
+        if (isset($_POST['hasta']) && $_POST['hasta'] != '')
         {
             $this->hasta = $this->filtros['b_fhasta'];
         }
 
-        if (isset($_GET['adjunto']) && $_GET['adjunto'] != '' || isset($_POST['b_adjunto']))
+        if (isset($_POST['b_adjunto']) && $_POST['b_adjunto'] != '')
         {
             $this->adj = $this->filtros['b_adjunto'];
         }
+
+//        if (isset($_GET['adjunto']) && $_GET['adjunto'] != '' || isset($_POST['b_adjunto']))
+//        {
+//            $this->adj = $this->filtros['b_adjunto'];
+//        }
 
         // Mostramos listado por tipo de documento
         if (isset($_POST['tipodoc']) && $_POST['tipodoc'] != '')
         {
             $this->tipodoc = $_POST['tipodoc'];
-        } else if (isset($_GET['docs']) && $_GET['docs'] != '')
-        {
-            $this->tipodoc = $_GET['docs'];
-        } else
+        } 
+//        else if (isset($_GET['docs']) && $_GET['docs'] != '')
+//        {
+//            $this->tipodoc = $_GET['docs'];
+//        }
+        else
         {
             $this->tipodoc = 'FC';
         }
@@ -280,5 +299,5 @@ class gestion_documental extends fs_controller
             return array();
         }
     }
-
+    
 }
