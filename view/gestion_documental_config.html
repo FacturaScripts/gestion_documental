@@ -1,47 +1,39 @@
 {include="header"}
+<link href="plugins/gestion_documental/extras/style.css" rel="stylesheet">
+<form name="f_custom_search" action="{$fsc->url()}" method="post" class="form">
 
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-sm-12">
-            <div class="page-header">
-                <h1>
-                    <i class="fa fa-file-text-o" aria-hidden="true"></i>
-                    Opciones Gestión Documental
-                    <span class="btn-group">
-                        <a class="btn btn-xs btn-default" href="{$fsc->url()}" title="Recargar la página">
-                            <span class="glyphicon glyphicon-refresh"></span>
-                        </a>
-                        {if="$fsc->page->is_default()"}
-                        <a class="btn btn-xs btn-default active" href="{$fsc->url()}&amp;default_page=FALSE" title="desmarcar como página de inicio">
-                            <span class="glyphicon glyphicon-home"></span>
-                        </a>
-                        {else}
-                        <a class="btn btn-xs btn-default" href="{$fsc->url()}&amp;default_page=TRUE" title="marcar como página de inicio">
-                            <span class="glyphicon glyphicon-home"></span>
-                        </a>
-                        {/if}
-                    </span>
-                </h1>
-                <p class="help-block"><span class="glyphicon glyphicon-exclamation-sign"></span>&nbsp;Configuración de filtros por defectos y opciones</p>
-            </div>
-        </div>
-        <div class="col-sm-10"></div>
-    </div>
-
-    <form name="f_custom_search" action="{$fsc->url()}" method="post" class="form">
+    <div class="container-fluid">
         <div class="row">
-            <div class="col-sm-12 text-right">
-                <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled = true;
-                    this.form.submit();">
-                    <span class="glyphicon glyphicon-floppy-disk"></span>
-                    <span class="hidden-xs">&nbsp; Guardar</span>
-                </button>
+            <div class="col-sm-12">
+                <div class="page-header">
+                    <h1>
+                        <i class="fa fa-file-text-o" aria-hidden="true"></i>
+                        Opciones Gestión Documental
+                        <span class="btn-group">
+                            <a class="btn btn-xs btn-default" href="{$fsc->url()}" title="Recargar la página">
+                                <span class="glyphicon glyphicon-refresh"></span>
+                            </a>
+                            {if="$fsc->page->is_default()"}
+                            <a class="btn btn-xs btn-default active" href="{$fsc->url()}&amp;default_page=FALSE" title="desmarcar como página de inicio">
+                                <span class="glyphicon glyphicon-home"></span>
+                            </a>
+                            {else}
+                            <a class="btn btn-xs btn-default" href="{$fsc->url()}&amp;default_page=TRUE" title="marcar como página de inicio">
+                                <span class="glyphicon glyphicon-home"></span>
+                            </a>
+                            {/if}
+                        </span>
+                    </h1>
+                    <p class="help-block"><span class="glyphicon glyphicon-exclamation-sign"></span>&nbsp;Configuración de filtro por defecto</p>
+                </div>
             </div>
+            <div class="col-sm-10"></div>
         </div>
+
         <div class="row">
             <div class="col-sm-2">
                 <div class="form-group">
-                    <label for="exampleInputPassword1">
+                    <label for="tipodoc">
                         Tipo de Documento
                     </label>
                     <div class="input-group has-warning">
@@ -50,7 +42,7 @@
                         </div>
                         <select name="tipodoc" class="form-control">
                             {loop="$fsc->tiposdoc"}
-                            {if="$value->codigo==$fsc->docs"}
+                            {if="$value->codigo==$fsc->tipodoc"}
                             <option value="{$value->codigo}" selected="">{$value->descripcion}</option>
                             {else}
                             <option value="{$value->codigo}">{$value->descripcion}</option>
@@ -60,17 +52,91 @@
                     </div>
                 </div>
             </div>
-            <div class="col-sm-2">
-                <!--                <div class="form-group">
-                
-                                    <label for="exampleInputPassword1">
-                                        Password
-                                    </label>
-                                    <input type="password" class="form-control" id="exampleInputPassword1" />
-                                </div>-->
+
+        </div>
+
+    </div>
+
+    <br/>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="page-header">
+                    <h2>
+                        <i class="fa fa-file-text-o" aria-hidden="true"></i>
+                        Opciones Avanzadas
+                    </h2>
+                    <p class="help-block"><span class="glyphicon glyphicon-exclamation-sign"></span>&nbsp;Necesitas el plugin de Gestión Documental Avanzada</p>
+                </div>
+            </div>
+            <div class="col-sm-10"></div>
+        </div>
+        <div class="row">
+            <div class="col-sm-3">
+                <label data-toggle="tooltip" data-placement="top" data-original-title="Selecciona las partes que tendrá el nombre del archivo que se comprimirá">
+                    Nombre Adjuntos Zip
+                </label>
+                <ul class="list-group">
+                    <li class="list-group-item">
+                        Nombre Original Adjunto                      
+                        <div class="material-switch pull-right">
+                            <input id="nombre_original" name="nombre_original" type="checkbox" {if="$fsc->avanzadas->nombre_original==1"}checked=""{/if} />
+                            <label for="nombre_original" class="label-default"></label>
+                        </div>
+                    </li>
+                    <li class="list-group-item">
+                        {#FS_NUMERO2#} / Núm. Proveedor
+                        <div class="material-switch pull-right">
+                            <input id="numero2" name="numero2" type="checkbox" {if="$fsc->avanzadas->numero2==1"}checked=""{/if}/>
+                            <label for="numero2" class="label-primary"></label>
+                        </div>
+                    </li>
+                    <li class="list-group-item">
+                        Código Documento Facturación
+                        <div class="material-switch pull-right">
+                            <input id="codigo_facturacion" name="codigo_facturacion" type="checkbox" {if="$fsc->avanzadas->codigo_facturacion==1"}checked=""{/if}/>
+                            <label for="codigo_facturacion" class="label-success"></label>
+                        </div>
+                    </li>
+                    <li class="list-group-item">
+                        Fecha Documento Facturación
+                        <div class="material-switch pull-right">
+                            <input id="fecha_facturacion" name="fecha_facturacion" type="checkbox" {if="$fsc->avanzadas->fecha_facturacion==1"}checked=""{/if}/>
+                            <label for="fecha_facturacion" class="label-info"></label>
+                        </div>
+                    </li>
+                    <!--                    <li class="list-group-item">
+                                            Bootstrap Switch Warning
+                                            <div class="material-switch pull-right">
+                                                <input id="someSwitchOptionWarning" name="someSwitchOption001" type="checkbox"/>
+                                                <label for="someSwitchOptionWarning" class="label-warning"></label>
+                                            </div>
+                                        </li>
+                                        <li class="list-group-item">
+                                            Bootstrap Switch Danger
+                                            <div class="material-switch pull-right">
+                                                <input id="someSwitchOptionDanger" name="someSwitchOption001" type="checkbox"/>
+                                                <label for="someSwitchOptionDanger" class="label-danger"></label>
+                                            </div>
+                                        </li>-->
+                </ul>
+
             </div>
         </div>
-    </form>
-</div>
+    </div>
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-12 text-right">
+                <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled = true;
+                        this.form.submit();">
+                    <span class="glyphicon glyphicon-floppy-disk"></span>
+                    <span class="hidden-xs">&nbsp; Guardar</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+</form>
 
 {include="footer"}

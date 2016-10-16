@@ -92,7 +92,7 @@
                         </div>
                         <select name="tipodoc" class="form-control" onchange="this.form.submit()">
                             {loop="$fsc->tiposdoc"}
-                            {if="$value->codigo==$fsc->docs"}
+                            {if="$value->codigo==$fsc->tipodoc"}
                             <option value="{$value->codigo}" selected="">{$value->descripcion}</option>
                             {else}
                             <option value="{$value->codigo}">{$value->descripcion}</option>
@@ -145,7 +145,7 @@
         <form name="generatezip" action="{$fsc->url()}" method="post" class="form">
             <div class="col-sm-2">
                 <input hidden name="zip" value="1" />
-                <input hidden name="docs" value="{$fsc->docs}" />
+                <input hidden name="tipodoc" value="{$fsc->tipodoc}" />
                 <input hidden name="b_adjunto" value="{$fsc->adj}" />
                 <input hidden type="text" name="desde" value="{if="$fsc->desde"}{$fsc->desde}{/if}" />
                 <input hidden type="text" name="hasta" value="{if="$fsc->hasta"}{$fsc->hasta}{/if}" />
@@ -188,30 +188,30 @@
                         <td class="text-left">
                         </td>
                         <td class="text-center">
-                            {if="$fsc->docs=='FC' || $fsc->docs=='FP'"}
+                            {if="$fsc->tipodoc=='FC' || $fsc->tipodoc=='FP'"}
                             {if="$value['pagada']"}
                             <span class="glyphicon glyphicon-ok" title="La factura está pagada"></span>
                             {/if}
                             {/if}
-                            {if="$fsc->docs=='FC' || $fsc->docs=='FP'"}
+                            {if="$fsc->tipodoc=='FC' || $fsc->tipodoc=='FP'"}
                             {if="$value['anulada']"}
                             <span class="glyphicon glyphicon-remove" title="La factura está anulada"></span>
                             {/if}
                             {/if}
-                            {if="$fsc->docs=='FC' || $fsc->docs=='FP'"}
+                            {if="$fsc->tipodoc=='FC' || $fsc->tipodoc=='FP'"}
                             {if="$value['idfacturarect']"}
                             <span class="glyphicon glyphicon-flag" title="{#FS_FACTURA_RECTIFICATIVA#} de {$value['codigorect']}"></span>
                             {/if}
                             {/if}
-                            {if="$fsc->docs=='FC'"}
+                            {if="$fsc->tipodoc=='FC'"}
                             {if="$value['femail']"}
                             <span class="glyphicon glyphicon-send" title="La factura fue enviada por email el {$value['femail']}"></span>
                             {/if}
                             {/if}                            
                         </td>
-                        <td><a href="{$value['doc_url']}" target="_blank">{$value['codigo']}</a> {if="$fsc->docs=='FC'"}{$value['numero2']}{/if}</td>
+                        <td><a href="{$value['doc_url']}" target="_blank">{$value['codigo']}</a> {if="$fsc->tipodoc=='FC'"}{$value['numero2']}{/if}</td>
                         <td>
-                            {if="$fsc->docs=='FC'"}{$value['nombrecliente']}{else}{$value['nombre']}{/if}
+                            {if="$fsc->tipodoc=='FC'"}{$value['nombrecliente']}{else}{$value['nombre']}{/if}
                         </td>
 
                         <td>{$value['observaciones']}</td>

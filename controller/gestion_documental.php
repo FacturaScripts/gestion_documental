@@ -20,7 +20,6 @@ class gestion_documental extends fs_controller
     public $offset;
     public $b_adjunto;
     public $filtros;
-    public $docs;
     public $desde;
     public $hasta;
     public $adj;
@@ -50,35 +49,34 @@ class gestion_documental extends fs_controller
             $this->offset = intval($_REQUEST['offset']);
         }
 
-        $this->docs  = '';
-        $this->desde = '';
-        $this->hasta = '';
-        $this->adj   = '';
+        $this->tipodoc = '';
+        $this->desde   = '';
+        $this->hasta   = '';
+        $this->adj     = '';
+        $sql           = "";
+        $where         = '';
 
-
+        /// Gestion Documental Avanzada
         if (isset($_POST['zip']) && $_POST['zip'] != '')
         {
             $this->gesdoc->gestion_documental_avanzada();
         }
 
-        // Inicializamos los filtros
+        /// Inicializamos los filtros
         if (isset($_POST['tipodoc']) && $_POST['tipodoc'] != '')
         {
             $this->gesdoc->set_filtros('tipodoc', $_POST['tipodoc']);
         } else
         {
-            $fsvar      = new fs_var();
-            $this->docs = $fsvar->simple_get('gdoc_tipodoc');
-            $this->gesdoc->set_filtros('tipodoc', $this->docs);
+            /// Cargamos la opción por defecto desde la configuracion
+            $fsvar         = new fs_var();
+            $this->tipodoc = $fsvar->simple_get('gdoc_tipodoc');
+            $this->gesdoc->set_filtros('tipodoc', $this->tipodoc);
         }
-
-        $sql   = "";
-        $where = '';
         if (isset($_POST['b_adjunto']) && $_POST['b_adjunto'] != '')
         {
             $this->gesdoc->set_filtros('b_adjunto', $_POST['b_adjunto']);
         }
-
         if (isset($_POST['desde']) && $_POST['desde'] != '')
         {
             $this->gesdoc->set_filtros('b_fdesde', $_POST['desde']);
@@ -86,7 +84,6 @@ class gestion_documental extends fs_controller
             $sql .= $where . " f.fecha >= '" . $d . "'";
             $where = ' AND ';
         }
-
         if (isset($_POST['hasta']) && $_POST['hasta'] != '')
         {
             $this->gesdoc->set_filtros('b_fhasta', $_POST['hasta']);
@@ -94,59 +91,48 @@ class gestion_documental extends fs_controller
             $sql .= $where . " f.fecha <= '" . $h . "'";
         }
 
+        /// Activamos filtros
         $this->filtros = $this->gesdoc->filtros;
-
-        if (isset($_POST['tipodoc']))
+        if (isset($this->filtros['tipodoc']))
         {
-            $this->docs = $_POST['tipodoc'];
+            $this->tipodoc = $this->filtros['tipodoc'];
         }
-
-        if (isset($_POST['desde']) && $_POST['desde'] != '')
+        if (isset($this->filtros['b_adjunto']))
+        {
+            $this->adj = $this->filtros['b_adjunto'];
+        }
+        if (isset($this->filtros['b_fhasta']))
+        {
+            $this->hasta = $this->filtros['b_fhasta'];
+        }
+        if (isset($this->filtros['b_fdesde']))
         {
             $this->desde = $this->filtros['b_fdesde'];
         }
 
-        if (isset($_POST['hasta']) && $_POST['hasta'] != '')
-        {
-            $this->hasta = $this->filtros['b_fhasta'];
-        }
-
-        if (isset($_POST['b_adjunto']) && $_POST['b_adjunto'] != '')
-        {
-            $this->adj = $this->filtros['b_adjunto'];
-        }
-
-        // Mostramos listado por tipo de documento
-        if (isset($_POST['tipodoc']) && $_POST['tipodoc'] != '')
-        {
-            $this->tipodoc = $_POST['tipodoc'];
-        } else
-        {
-            $this->tipodoc = 'FC';
-        }
-
-        if ($this->tipodoc == 'FC' || $this->docs == 'FC')
+        /// Variables para las consultas
+        if ($this->tipodoc == 'FC')
         {
             $this->desc_tipodoc = 'Factura Cliente';
             $tabla              = 'facturascli';
             $id                 = 'idfactura';
             $id2                = 'idfactura';
             $mainpage           = 'ventas';
-        } else if ($this->tipodoc == 'FP' || $this->docs == 'FP')
+        } else if ($this->tipodoc == 'FP')
         {
             $this->desc_tipodoc = 'Factura Proveedor';
             $tabla              = 'facturasprov';
             $id                 = 'idfactura';
             $id2                = 'idfacturaprov';
             $mainpage           = 'compras';
-        } else if ($this->tipodoc == 'AC' || $this->docs == 'AC')
+        } else if ($this->tipodoc == 'AC')
         {
             $this->desc_tipodoc = 'Albarán Cliente';
             $tabla              = 'albaranescli';
             $id                 = 'idalbaran';
             $id2                = 'idalbaran';
             $mainpage           = 'ventas';
-        } else if ($this->tipodoc == 'AP' || $this->docs == 'AP')
+        } else if ($this->tipodoc == 'AP')
         {
             $this->desc_tipodoc = 'Albarán Proveedor';
             $tabla              = 'albaranesprov';
@@ -171,6 +157,7 @@ class gestion_documental extends fs_controller
             }
         }
 
+        /// Selector de opciones de b_ajunto    
         if ($this->adj == '1')
         {
             $sql_res   = 'documentosfac as d, ' . $tabla . ' as f WHERE f.' . $id . ' = d.' . $id2 . ' ';
@@ -185,6 +172,7 @@ class gestion_documental extends fs_controller
             $sql_pages = '';
         }
 
+        /// Obtenemos listado de documentos
         $res              = $this->gesdoc->get_documents($sql, $sql_res, $sql_pages, $this->offset, $this->adj, $tabla, $id);
         $this->resultados = $res[0];
         $this->pages      = $res[1];
@@ -200,14 +188,6 @@ class gestion_documental extends fs_controller
                 $this->resultados[$i]['doc_fecha'] = date('d-m-Y', strtotime($this->resultados[$i]['doc_fecha']));
                 $this->resultados[$i]['doc_url']   = 'index.php?page=' . $mainpage . '_' . $pagina[1] . '&id=' . $r["$id"];
             }
-        }
-
-        if ($this->filtros)
-        {
-            $this->url .= '&docs=' . $this->docs;
-            $this->url .= '&desde=' . $this->desde;
-            $this->url .= '&hasta=' . $this->hasta;
-            $this->url .= '&adjunto=' . $this->adj;
         }
     }
 
