@@ -109,7 +109,12 @@ class gestion_documental extends fs_controller
         {
             $this->desde = $this->filtros['b_fdesde'];
         }
-
+        
+        if (!$this->tipodoc)
+        {
+            $this->tipodoc = 'FC';
+        }
+        
         /// Variables para las consultas
         if ($this->tipodoc == 'FC')
         {
@@ -157,7 +162,7 @@ class gestion_documental extends fs_controller
             }
         }
 
-        /// Selector de opciones de b_ajunto    
+        /// Selector de opciones de b_adjunto    
         if ($this->adj == '1')
         {
             $sql_res   = 'documentosfac as d, ' . $tabla . ' as f WHERE f.' . $id . ' = d.' . $id2 . ' ';
