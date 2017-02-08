@@ -56,7 +56,7 @@ class gestion_documental extends fs_controller
         $sql           = "";
         $where         = '';
 
-        /// Gestion Documental Avanzada
+        /// Generar ZIP
         if (isset($_POST['zip']) && $_POST['zip'] != '')
         {
             $this->generate_zip();
