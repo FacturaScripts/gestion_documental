@@ -109,9 +109,4 @@ class gestion_documento extends \fs_model
 
         return array($resultados, $pages);
     }
-
-    public function gestion_documental_avanzada()
-    {
-         $this->new_error_msg('Necesitas el plugin de Gestión Documental Avanzada.');
-    }
 }

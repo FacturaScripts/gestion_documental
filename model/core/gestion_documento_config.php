@@ -42,6 +42,60 @@ class gestion_documento_config extends \fs_model
     }
     public function gestion_documental_avanzada()
     {
-         $this->new_error_msg('Necesitas el plugin de Gestión Documental Avanzada.');
+        /// nombre_original
+        if (isset($_POST['nombre_original']) && $_POST['nombre_original'] != '')
+        {
+            $this->save_fsvar('gdoc_nombre_original', '1');
+        } else
+        {
+            $this->delete_fsvar('gdoc_nombre_original');
+        }
+
+        /// Numero 2
+        if (isset($_POST['numero2']) && $_POST['numero2'] != '')
+        {
+            $this->save_fsvar('gdoc_numero2', '1');
+        } else
+        {
+            $this->delete_fsvar('gdoc_numero2');
+        }
+        
+        /// codigo_facturacion
+        if (isset($_POST['codigo_facturacion']) && $_POST['codigo_facturacion'] != '')
+        {
+            $this->save_fsvar('gdoc_codigo_facturacion', '1');
+        } else
+        {
+            $this->delete_fsvar('gdoc_codigo_facturacion');
+        }
+        
+        /// fecha-facturacion
+        if (isset($_POST['fecha_facturacion']) && $_POST['fecha_facturacion'] != '')
+        {
+            $this->save_fsvar('gdoc_fecha_facturacion', '1');
+        } else
+        {
+            $this->delete_fsvar('gdoc_fecha_facturacion');
+        }
+
+        return;
+    }
+
+    protected function save_fsvar($name, $varchar)
+    {
+        $f            = array();
+        $f['name']    = $name;
+        $f['varchar'] = $varchar;
+        $fsvar        = new fs_var($f);
+        $fsvar->save();
+        return;
+    }
+
+    protected function delete_fsvar($name)
+    {
+        $fsvar        = new fs_var();
+        $fsvar->name = $name;
+        $fsvar->delete();
+        return;
     }
 }

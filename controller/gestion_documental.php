@@ -59,7 +59,7 @@ class gestion_documental extends fs_controller
         /// Gestion Documental Avanzada
         if (isset($_POST['zip']) && $_POST['zip'] != '')
         {
-            $this->gesdoc->gestion_documental_avanzada();
+            $this->generate_zip();
         }
 
         /// Inicializamos los filtros
@@ -246,6 +246,143 @@ class gestion_documental extends fs_controller
         {
             return array();
         }
+    }
+
+    protected function generate_zip()
+    {
+
+        $sql = "";
+        if (isset($_REQUEST['desde']) && isset($_REQUEST['hasta']) && $_REQUEST['desde'] != '' && $_REQUEST['hasta'] != '')
+        {
+            $sql = " AND f.fecha >= '" . date('Y-m-d', strtotime($_REQUEST['desde'])) . "' AND f.fecha <= '" . date('Y-m-d', strtotime($_REQUEST['hasta'])) . "'";
+        }
+
+        if (isset($_POST['tipodoc']) && $_POST['tipodoc'] != '')
+        {
+            if ($_POST['tipodoc'] == 'FC')
+            {
+                $this->resultados = $this->get_documents_zip('facturascli as f', 'idfactura', 'idfactura', $sql);
+            }
+
+            if ($_POST['tipodoc'] == 'FP')
+            {
+                $this->resultados = $this->get_documents_zip('facturasprov as f', 'idfactura', 'idfacturaprov', $sql);
+            }
+
+            if ($_POST['tipodoc'] == 'AC')
+            {
+                $this->resultados = $this->get_documents_zip('albaranescli as f', 'idalbaran', 'idalbaran', $sql);
+            }
+
+            if ($_POST['tipodoc'] == 'AP')
+            {
+                $this->resultados = $this->get_documents_zip('albaranesprov as f', 'idalbaran', 'idalbaranprov', $sql);
+            }
+
+            /// Recorremos resultados para añadir adjuntos al archivo zip
+            foreach ($this->resultados as $r)
+            {
+                $filename   = $this->compose_filename($_POST['tipodoc'], $r);
+                $zip_create = $this->download_zip($r['ruta'], $filename);
+            }
+
+            if ($zip_create)
+            {
+                header("Content-Type: application/zip");
+                header("Content-Transfer-Encoding: Binary");
+                header("Content-Length: " . filesize('documentos.zip'));
+                header("Content-Disposition: attachment; filename=\"" . basename('documentos.zip') . "\"");
+                readfile('documentos.zip');
+
+                if (file_exists('documentos.zip'))
+                {
+                    unlink('documentos.zip');
+                }
+            } else
+            {
+                $this->new_error_msg('Ha ocurrido un problema al generar el zip');
+            }
+        }
+    }
+
+    /**
+     * 
+     * @param string $tipodoc       
+     * @param array  $datos     
+     * 
+     * @return string $filename
+     */
+    protected function compose_filename($tipodoc, $datos)
+    {
+        $fsvar                = new fs_var();
+        $filename             = '';
+        $c_nombre_original    = $fsvar->simple_get('gdoc_nombre_original');
+        $c_numero2            = $fsvar->simple_get('gdoc_numero2');
+        $c_codigo_facturacion = $fsvar->simple_get('gdoc_codigo_facturacion');
+        $c_fecha_facturacion  = $fsvar->simple_get('gdoc_fecha_facturacion');
+
+        $n               = pathinfo($datos['nombre']);
+        $nombre_original = $n['filename'];
+        $extension       = $n['extension'];
+
+        if ($c_fecha_facturacion)
+        {
+            $filename .= $datos['fecha_facturacion'];
+        }
+        if ($c_codigo_facturacion)
+        {
+            $filename .= '_' . $datos['codigo_facturacion'];
+        }
+        if ($c_numero2)
+        {
+            if (isset($datos['numero2']) && $datos['numero2'] != '')
+            {
+                $filename .= '_' . $datos['numero2'];
+            } else
+            {
+                $filename .= '_' . '---';
+            }
+        }
+        if ($c_nombre_original)
+        {
+            $filename .= '_' . $nombre_original;
+        }
+        $filename .= '.' . $extension;
+        
+        if ($filename == '.'.$extension)
+        {
+            $filename = $nombre_original . '.' . $extension;
+        }
+
+        return $filename;
+    }
+
+    public function get_documents_zip($tabla, $id, $id2, $sql)
+    {
+        if ($id2 == 'idfacturaprov' || $id2 == 'idalbaranprov')
+        {
+            $resultados = $this->db->select("SELECT f.fecha as fecha_facturacion, f.codigo as codigo_facturacion, d.* FROM " . $tabla . ", documentosfac as d WHERE d." . $id2 . " = f." . $id . " " . $sql . ";");
+        } else
+        {
+            $resultados = $this->db->select("SELECT f.fecha as fecha_facturacion, f.codigo as codigo_facturacion, f.numero2 as numero2, d.* FROM " . $tabla . ", documentosfac as d WHERE d." . $id2 . " = f." . $id . " " . $sql . ";");
+        }
+
+        return $resultados;
+    }
+
+    private function download_zip($ruta, $filename)
+    {
+        /// desactivamos el motor de plantillas
+        $this->template = FALSE;
+
+        $zip = new ZipArchive;
+        if ($zip->open('documentos.zip', ZipArchive::CREATE) === TRUE)
+        {
+            $zip->addFile($ruta, $filename);
+            $zip->close();
+        }
+
+        return true;
     }
 
 }
