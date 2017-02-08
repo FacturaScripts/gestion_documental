@@ -60,18 +60,6 @@
     <br/>
     <div class="container-fluid">
         <div class="row">
-            <div class="col-sm-12">
-                <div class="page-header">
-                    <h2>
-                        <i class="fa fa-file-text-o" aria-hidden="true"></i>
-                        Opciones Avanzadas
-                    </h2>
-                    <p class="help-block"><span class="glyphicon glyphicon-exclamation-sign"></span>&nbsp;Necesitas el plugin de Gestión Documental Avanzada</p>
-                </div>
-            </div>
-            <div class="col-sm-10"></div>
-        </div>
-        <div class="row">
             <div class="col-sm-3">
                 <label data-toggle="tooltip" data-placement="top" data-original-title="Selecciona las partes que tendrá el nombre del archivo que se comprimirá">
                     Nombre Adjuntos Zip
@@ -80,28 +68,28 @@
                     <li class="list-group-item">
                         Nombre Original Adjunto                      
                         <div class="material-switch pull-right">
-                            <input id="nombre_original" name="nombre_original" type="checkbox" {if="$fsc->avanzadas->nombre_original==1"}checked=""{/if} />
+                            <input id="nombre_original" name="nombre_original" type="checkbox" {if="$fsc->generate_zip->nombre_original==1"}checked=""{/if} />
                             <label for="nombre_original" class="label-default"></label>
                         </div>
                     </li>
                     <li class="list-group-item">
                         {#FS_NUMERO2#} / Núm. Proveedor
                         <div class="material-switch pull-right">
-                            <input id="numero2" name="numero2" type="checkbox" {if="$fsc->avanzadas->numero2==1"}checked=""{/if}/>
+                            <input id="numero2" name="numero2" type="checkbox" {if="$fsc->generate_zip->numero2==1"}checked=""{/if}/>
                             <label for="numero2" class="label-primary"></label>
                         </div>
                     </li>
                     <li class="list-group-item">
                         Código Documento Facturación
                         <div class="material-switch pull-right">
-                            <input id="codigo_facturacion" name="codigo_facturacion" type="checkbox" {if="$fsc->avanzadas->codigo_facturacion==1"}checked=""{/if}/>
+                            <input id="codigo_facturacion" name="codigo_facturacion" type="checkbox" {if="$fsc->generate_zip->codigo_facturacion==1"}checked=""{/if}/>
                             <label for="codigo_facturacion" class="label-success"></label>
                         </div>
                     </li>
                     <li class="list-group-item">
                         Fecha Documento Facturación
                         <div class="material-switch pull-right">
-                            <input id="fecha_facturacion" name="fecha_facturacion" type="checkbox" {if="$fsc->avanzadas->fecha_facturacion==1"}checked=""{/if}/>
+                            <input id="fecha_facturacion" name="fecha_facturacion" type="checkbox" {if="$fsc->generate_zip->fecha_facturacion==1"}checked=""{/if}/>
                             <label for="fecha_facturacion" class="label-info"></label>
                         </div>
                     </li>

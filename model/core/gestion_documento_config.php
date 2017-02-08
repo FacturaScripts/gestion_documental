@@ -40,7 +40,7 @@ class gestion_documento_config extends \fs_model
     {
         
     }
-    public function gestion_documental_avanzada()
+    public function export_zip()
     {
         /// nombre_original
         if (isset($_POST['nombre_original']) && $_POST['nombre_original'] != '')
