@@ -254,7 +254,7 @@ class informes_documentos extends fs_controller
          $where = ' AND ';
       }
 
-      $sql = "SELECT * FROM " . $this->tipo . " WHERE numdocs >= '1' " . $sql . ";";
+      $sql = "SELECT * FROM " . $this->tipo . " WHERE numdocs >= '1' " . $sql . " ORDER BY fecha DESC;";
       $data = $this->db->select($sql);
 
       if($data)
