@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Document   : documentosfac.xml
+    Description:
+        Estructura de la tabla documentosfac.
+-->
+<tabla>
+   <columna>
+      <nombre>id</nombre>
+      <tipo>serial</tipo>
+      <nulo>NO</nulo>
+      <defecto>nextval('documentosfac_id_seq'::regclass)</defecto>
+   </columna>
+   <columna>
+      <nombre>ruta</nombre>
+      <tipo>character varying(300)</tipo>
+      <nulo>NO</nulo>
+   </columna>
+   <columna>
+      <nombre>nombre</nombre>
+      <tipo>character varying(250)</tipo>
+      <nulo>NO</nulo>
+   </columna>
+   <columna>
+      <nombre>fecha</nombre>
+      <tipo>date</tipo>
+   </columna>
+   <columna>
+      <nombre>hora</nombre>
+      <tipo>time without time zone</tipo>
+      <defecto>now()</defecto>
+   </columna>
+   <columna>
+      <nombre>tamano</nombre>
+      <tipo>integer</tipo>
+   </columna>
+   <columna>
+      <nombre>usuario</nombre>
+      <tipo>character varying(12)</tipo>
+   </columna>
+   <columna>
+      <nombre>idfactura</nombre>
+      <tipo>integer</tipo>
+   </columna>
+   <columna>
+      <nombre>idalbaran</nombre>
+      <tipo>integer</tipo>
+   </columna>
+   <columna>
+      <nombre>idpedido</nombre>
+      <tipo>integer</tipo>
+   </columna>
+   <columna>
+      <nombre>idpresupuesto</nombre>
+      <tipo>integer</tipo>
+   </columna>
+   <columna>
+      <nombre>idservicio</nombre>
+      <tipo>integer</tipo>
+   </columna>
+   <columna>
+      <nombre>idfacturaprov</nombre>
+      <tipo>integer</tipo>
+   </columna>
+   <columna>
+      <nombre>idalbaranprov</nombre>
+      <tipo>integer</tipo>
+   </columna>
+   <columna>
+      <nombre>idpedidoprov</nombre>
+      <tipo>integer</tipo>
+   </columna>
+   <restriccion>
+      <nombre>documentosfac_pkey</nombre>
+      <consulta>PRIMARY KEY (id)</consulta>
+   </restriccion>
+</tabla>
