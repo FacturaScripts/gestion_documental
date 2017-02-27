@@ -225,6 +225,7 @@
                      <th class=" text-left">Usuario</th>
                   </tr>
                </thead>
+               {if="$fsc->resultados"}
                {loop="$fsc->resultados"}
                <tr class="">
                   <td class="text-left">{$value['fecha']}</td>
@@ -236,6 +237,9 @@
                   <td class="text-left">{$value['tamano']}</td>
                   <td class="text-left">{$value['usuario']}</td>
                   {/loop}
+                  {else}
+                  <td colspan="8" class="text-left">No hay documentos adjuntos</td>
+                  {/if}
             </table>
          </div>
       </div>
