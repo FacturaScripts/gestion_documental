@@ -3,10 +3,15 @@
 <script type="text/javascript">
    function delete_documento(id,name)
    {
-      if( confirm("¿Realmente desea eliminar "+name+"?") )
-      {
-         window.location.href = "{$fsc->url()}&delete="+id;
-      }
+      bootbox.confirm({
+         message: '¿Realmente desea eliminar '+name+'?',
+         title: '<b>Atención</b>',
+         callback: function(result) {
+            if (result) {
+               window.location.href = "{$fsc->url()}&delete="+id;
+            }
+         }
+      });
       
       return false;
    }
