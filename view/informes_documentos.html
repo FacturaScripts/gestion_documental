@@ -1,13 +1,6 @@
 {include="header"}
+
 <script type="text/javascript">
-
-   $(function () {
-      $('.pop').on('click', function () {
-         $('.imagepreview').attr('src', $(this).find('img').attr('src'));
-         $('#imagemodal').modal('show');
-      });
-   });
-
    function clean_cliente()
    {
       document.f_custom_search.ac_cliente.value = '';
@@ -23,7 +16,6 @@
       document.f_custom_search.submit();
    }
    $(document).ready(function () {
-
       $("#ac_cliente").autocomplete({
          serviceUrl: '{$fsc->url()}',
          paramName: 'buscar_cliente',
@@ -52,15 +44,23 @@
             }
          }
       });
+      $('[data-toggle="popover"]').popover({
+         placement : 'bottom',
+         trigger : 'hover',
+         content: function() {
+            return '<div class="thumbnail" style="margin: 0px;"><img src="'+$(this).data('img') + '" /></a>';
+         }
+      });
    });
 </script>
+
 <div class="container-fluid">
    <div class="row">
-      <div class="col-sm-9">
+      <div class="col-sm-12">
          <div class="page-header">
             <h1>
                <i class="fa fa-file-text-o" aria-hidden="true"></i>
-               Archivos adjuntos
+               Gestión documental
                <span class="btn-group">
                   <a class="btn btn-xs btn-default" href="{$fsc->url()}" title="Recargar la página">
                      <span class="glyphicon glyphicon-refresh"></span>
@@ -76,29 +76,27 @@
                   {/if}
                </span>
             </h1>
-            <p class="help-block"><span class="glyphicon glyphicon-exclamation-sign"></span>&nbsp;Aquí podemos descargar los archivos adjuntos de cualquier documento de venta o compra</p>
+            <p class="help-block">
+               Listado de documentos de compra o de venta con archivos adjuntos.
+            </p>
          </div>
+         <ul class="nav nav-tabs">
+            <li{if="$fsc->mostrar=='compras'"} class="active"{/if}>
+               <a href="{$fsc->url()}&mostrar=compras">
+                  <span class="text-capitalize hidden-xs">Compras</span>
+                  <span class="visible-xs">Compras</span>
+               </a>
+            </li>
+            <li{if="$fsc->mostrar=='ventas'"} class="active"{/if}>
+               <a href="{$fsc->url()}&mostrar=ventas">
+                  <span class="text-capitalize hidden-xs">Ventas</span>
+                  <span class="visible-xs">Ventas</span>
+               </a>
+            </li>
+         </ul>
+         <br/>
       </div>
    </div>
-</div>
-
-<div class="container-fluid">
-
-   <ul class="nav nav-tabs" role="tablist">
-      <li{if="$fsc->mostrar=='ventas'"} class="active"{/if}>
-         <a href="{$fsc->url()}&mostrar=ventas">
-            <span class="text-capitalize hidden-xs">Ventas</span>
-            <span class="visible-xs">Ventas</span>
-         </a>
-      </li>
-      <li{if="$fsc->mostrar=='compras'"} class="active"{/if}>
-         <a href="{$fsc->url()}&mostrar=compras">
-            <span class="text-capitalize hidden-xs">Compras</span>
-            <span class="visible-xs">Compras</span>
-         </a>
-      </li>
-   </ul>
-   <br/>
    <form name="f_custom_search" action="{$fsc->url()}" method="post" class="form">
       <input type="hidden" name="codcliente" value="{$fsc->cliente->codcliente}"/>
       <input type="hidden" name="codproveedor" value="{$fsc->proveedor->codproveedor}"/>
@@ -111,7 +109,7 @@
                <b>Clientes</b>
                <div class="input-group">
                   <div class="input-group-addon ">
-                     <i class="fa fa-user" aria-hidden="true"></i>
+                     <i class="fa fa-users" aria-hidden="true"></i>
                   </div>
                   {if="$fsc->cliente"}
                   <input class="form-control" type="text" name="ac_cliente" value="{$fsc->cliente->nombre}" id="ac_cliente" autocomplete="off"/>
@@ -195,57 +193,60 @@
          {if="$fsc->totalresultados"}
          <div class="col-sm-2">
             <div>
-               <label data-toggle="tooltip" data-placement="top" data-original-title="Comprime todos los archivos adjuntos del listado">Generar Zip</label>
+               <label>Generar Zip</label>
             </div>
-            <span class="input-group-btn" title="Descargar">
-               <a class="btn btn-info" href="{$fsc->b_url}&download=zip" title="Descargar ZIP">
-                  <span class="glyphicon glyphicon-download-alt"></span>
-               </a>
-            </span>
+            <a class="btn btn-sm btn-info" href="{$fsc->b_url}&download=zip" title="Descargar ZIP">
+               <span class="glyphicon glyphicon-download-alt"></span>
+               <span class="hidden-sm">&nbsp;ZIP</span>
+            </a>
          </div>
          {/if}
       </div>
    </form>
-</div>
-
-<div class="container-fluid ">
    <div class="row">
       <div class="col-sm-12">
          <div class="table-responsive">
-            <table class="table table-hover table-gesdoc">
+            <table class="table table-hover">
                <thead>
                   <tr>
                      <th class=" text-left">Fecha</th>
                      <th class=" text-left">Código + {#FS_NUMERO2#}</th>
                      <th class=" text-left">Nombre</th>
                      <th class=" text-left">Nombre Archivo.</th>
-                     <th class=" text-left">Ruta</th>
+                     <th class=" text-left hidden-xs hidden-sm">Ruta</th>
                      <th class=" text-left">Adjuntado Día y Hora</th>
-                     <th class=" text-left">Tamaño</th>
-                     <th class=" text-left">Usuario</th>
+                     <th class=" text-right">Tamaño</th>
+                     <th class=" text-right">Usuario</th>
                   </tr>
                </thead>
-               {if="$fsc->resultados"}
                {loop="$fsc->resultados"}
-               <tr class="">
+               <tr>
                   <td class="text-left">{$value['fecha']}</td>
                   <td class="text-left"><a href="{$value['doc_url']}" target="_blank">{$value['codigo']}</a> {$value['numero2']}</td>
                   <td class="text-left">{$value['nombre']}</td>
-                  <td class="text-left"><a class="pop" href="{$value['ruta']}" target="_blank">{$value['nombrearchivo']}</a></td>
-                  <td class="text-left">{$value['ruta']}</td>
+                  <td class="text-left">
+                     {if="$fsc->is_image($value['nombrearchivo'])"}
+                     <i class="fa fa-file-image-o" aria-hidden="true"></i>
+                     <a href="{$value['ruta']}" target="_blank" data-toggle="popover" data-html="true" data-img="{$value['ruta']}">{$value['nombrearchivo']}</a>
+                     {else}
+                     <i class="fa fa-file-o" aria-hidden="true"></i>
+                     <a href="{$value['ruta']}" target="_blank">{$value['nombrearchivo']}</a>
+                     {/if}
+                  </td>
+                  <td class="text-left hidden-xs hidden-sm">{$value['ruta']}</td>
                   <td class="text-left">{$value['docfecha']} {$value['dochora']}</td>
-                  <td class="text-left">{$value['tamano']}</td>
-                  <td class="text-left">{$value['usuario']}</td>
-                  {/loop}
-                  {else}
-                  <td colspan="8" class="text-left">No hay documentos adjuntos</td>
-                  {/if}
+                  <td class="text-right">{$value['tamano']}</td>
+                  <td class="text-right">{$value['usuario']}</td>
+               </tr>
+               {else}
+               <tr class="warning">
+                  <td colspan="8">Sin resultados.</td>
+               </tr>
+               {/loop}
             </table>
          </div>
       </div>
    </div>
-</div>
-<div class="container-fluid">
    <div class="row">
       <div class="col-sm-12 text-center">
          <ul class="pagination">
@@ -258,6 +259,5 @@
       </div>
    </div>
 </div>
-
 
 {include="footer"}

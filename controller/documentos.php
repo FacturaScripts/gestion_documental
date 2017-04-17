@@ -2,7 +2,7 @@
 
 /*
  * This file is part of FacturaScripts
- * Copyright (C) 2015-2016  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2015-2017  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -453,5 +453,22 @@ class documentos extends fs_controller
             $documento->save();
          }
       }
+   }
+   
+   public function is_image($name)
+   {
+      $is_image = FALSE;
+      $name = mb_strtolower($name, 'UTF-8');
+      
+      if( mb_substr($name, -4) == '.jpg' OR mb_substr($name, -5) == '.jpeg' )
+      {
+         $is_image = TRUE;
+      }
+      else if( mb_substr($name, -4) == '.png' OR mb_substr($name, -4) == '.gif' )
+      {
+         $is_image = TRUE;
+      }
+      
+      return $is_image;
    }
 }

@@ -3,7 +3,7 @@
 /*
  * This file is part of FacturaScripts
  * Copyright (C) 2017    Luis Miguel Pérez Romero  luismipr@gmail.com
- * Copyright (C) 2017    Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2017    Carlos Garcia Gomez       neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -34,7 +34,6 @@ require_model('servicio_cliente.php');
 
 class informes_documentos extends fs_controller
 {
-
    public $mostrar;
    public $cliente;
    public $proveedor;
@@ -51,152 +50,144 @@ class informes_documentos extends fs_controller
 
    public function __construct()
    {
-      parent::__construct(__CLASS__, 'Documentos adjuntos', 'informes');
+      parent::__construct(__CLASS__, 'Gestión documental', 'informes');
    }
 
    protected function private_core()
    {
-      $this->cliente = new cliente();
-      $this->proveedor = new proveedor();
-
-      $this->desde = '';
-      $this->hasta = '';
-      $this->offset ='0';
-
-
-
-      //valores por defecto
-      $this->mostrar = 'ventas';
-      $this->tipo = 'facturascli';
-      $this->idtipo = 'idfactura';
-      $this->documento = new factura_cliente();
-
-      //que tab mostramos.
-      if(isset($_REQUEST['mostrar']))
-      {
-         $this->mostrar = $_REQUEST['mostrar'];
-      }
-
-
-      //buscamos cliente
-      if(isset($_REQUEST['buscar_cliente']))
+      if( isset($_REQUEST['buscar_cliente']) )
       {
          $this->buscar_cliente();
       }
-      //buscamos proveedor
-      else if(isset($_REQUEST['buscar_proveedor']))
+      else if( isset($_REQUEST['buscar_proveedor']) )
       {
          $this->buscar_proveedor();
       }
-
-      //formulario enviado
-      if(isset($_REQUEST['desde']))
+      else
       {
-         $this->desde = $_REQUEST['desde'];
-      }
-      if(isset($_REQUEST['hasta']))
-      {
-         $this->hasta = $_REQUEST['hasta'];
-      }
-
-      if(isset($_REQUEST['codcliente']) && $_REQUEST['codcliente'] != '')
-      {
-         $cli0 = new cliente();
-         $this->cliente = $cli0->get($_REQUEST['codcliente']);
-      }
-      if(isset($_REQUEST['codproveedor']) && $_REQUEST['codproveedor'] != '')
-      {
-         $pro0 = new proveedor();
-         $this->proveedor = $pro0->get($_REQUEST['codproveedor']);
-      }
-      
-      if(isset($_REQUEST['offset']))
-      {
-         $this->offset = $_REQUEST['offset'];
-      }
-
-      if(isset($_REQUEST['tipo']))
-      {
-         $this->tipo = $_REQUEST['tipo'];
-         if($_REQUEST['tipo'] == 'facturascli')
+         $this->mostrar = 'ventas';
+         if(isset($_REQUEST['mostrar']))
          {
-            $this->idtipo = 'idfactura';
-            $this->documento = 'factura_cliente';
+            $this->mostrar = $_REQUEST['mostrar'];
          }
-         else if($_REQUEST['tipo'] == 'presupuestoscli')
+         
+         $this->desde = '';
+         if( isset($_REQUEST['desde']))
          {
-            $this->idtipo = 'idpresupuesto';
-            $this->documento = 'presupuesto_cliente';
+            $this->desde = $_REQUEST['desde'];
          }
-         else if($_REQUEST['tipo'] == 'pedidoscli')
+         
+         $this->hasta = '';
+         if( isset($_REQUEST['hasta']))
          {
-            $this->idtipo = 'idpedido';
-            $this->documento = 'pedido_cliente';
+            $this->hasta = $_REQUEST['hasta'];
          }
-         else if($_REQUEST['tipo'] == 'albaranescli')
+         
+         $this->offset = 0;
+         if(isset($_REQUEST['offset']))
          {
-            $this->idtipo = 'idalbaran';
-            $this->documento = 'albaran_cliente';
+            $this->offset = $_REQUEST['offset'];
          }
-         else if($_REQUEST['tipo'] == 'servicioscli')
+         
+         $this->cliente = new cliente();
+         $this->proveedor = new proveedor();
+         if( isset($_REQUEST['codcliente']) && $_REQUEST['codcliente'] != '')
          {
-            $this->idtipo = 'idservicio';
-            $this->documento = 'servicio_cliente';
+            $cli0 = new cliente();
+            $this->cliente = $cli0->get($_REQUEST['codcliente']);
          }
-         else if($_REQUEST['tipo'] == 'pedidosprov')
+         else if( isset($_REQUEST['codproveedor']) && $_REQUEST['codproveedor'] != '')
          {
-            $this->idtipo = 'idpedido';
-            $this->documento = 'pedido_proveedor';
+            $pro0 = new proveedor();
+            $this->proveedor = $pro0->get($_REQUEST['codproveedor']);
          }
-         else if($_REQUEST['tipo'] == 'albaranesprov')
+         
+         $this->tipo = 'facturascli';
+         $this->idtipo = 'idfactura';
+         $this->documento = FALSE;
+         if( isset($_REQUEST['tipo']) )
          {
-            $this->idtipo = 'idalbaran';
-            $this->documento = 'albaran_proveedor';
-         }
-         else if($_REQUEST['tipo'] == 'facturasprov')
-         {
-            $this->idtipo = 'idfactura';
-            $this->documento = 'factura_proveedor';
-         }
-      }
-
-      $this->resultados = $this->resultados();
-      
-
-      //url para paginacion y descarga 
-      $this->b_url = $this->url() . "&mostrar=" . $this->mostrar
-              . "&codcliente=" . $this->cliente->codcliente
-              . "&codproveedor=" . $this->proveedor->codproveedor
-              . "&tipo=" . $this->tipo
-              . "&desde=" . $this->desde
-              . "&hasta=" . $this->hasta
-              . "&offset=" . $this->offset;
-
-      //descargar zip?
-      if(isset($_REQUEST['download']))
-      {
-         if($this->totalresultados)
-         {
-            foreach($this->totalresultados as $r)
+            $this->tipo = $_REQUEST['tipo'];
+            if($_REQUEST['tipo'] == 'facturascli')
             {
-               $archivo_zip = $this->download_zip($r['ruta'], $r['nombrearchivo']);
+               $this->idtipo = 'idfactura';
+               $this->documento = 'factura_cliente';
             }
-            if($archivo_zip)
+            else if($_REQUEST['tipo'] == 'presupuestoscli')
             {
-               header("Content-Type: application/zip");
-               header("Content-Transfer-Encoding: Binary");
-               header("Content-Length: " . filesize('documentos.zip'));
-               header("Content-Disposition: attachment; filename=\"" . basename('documentos.zip') . "\"");
-               readfile('documentos.zip');
-
-               if(file_exists('documentos.zip'))
+               $this->idtipo = 'idpresupuesto';
+               $this->documento = 'presupuesto_cliente';
+            }
+            else if($_REQUEST['tipo'] == 'pedidoscli')
+            {
+               $this->idtipo = 'idpedido';
+               $this->documento = 'pedido_cliente';
+            }
+            else if($_REQUEST['tipo'] == 'albaranescli')
+            {
+               $this->idtipo = 'idalbaran';
+               $this->documento = 'albaran_cliente';
+            }
+            else if($_REQUEST['tipo'] == 'servicioscli')
+            {
+               $this->idtipo = 'idservicio';
+               $this->documento = 'servicio_cliente';
+            }
+            else if($_REQUEST['tipo'] == 'pedidosprov')
+            {
+               $this->idtipo = 'idpedido';
+               $this->documento = 'pedido_proveedor';
+            }
+            else if($_REQUEST['tipo'] == 'albaranesprov')
+            {
+               $this->idtipo = 'idalbaran';
+               $this->documento = 'albaran_proveedor';
+            }
+            else if($_REQUEST['tipo'] == 'facturasprov')
+            {
+               $this->idtipo = 'idfactura';
+               $this->documento = 'factura_proveedor';
+            }
+         }
+         
+         $this->resultados = $this->resultados();
+         
+         /// url para paginacion y descarga 
+         $this->b_url = $this->url() . "&mostrar=" . $this->mostrar
+                 . "&codcliente=" . $this->cliente->codcliente
+                 . "&codproveedor=" . $this->proveedor->codproveedor
+                 . "&tipo=" . $this->tipo
+                 . "&desde=" . $this->desde
+                 . "&hasta=" . $this->hasta
+                 . "&offset=" . $this->offset;
+         
+         /// ¿Descargar zip?
+         if( isset($_REQUEST['download']) )
+         {
+            if($this->totalresultados)
+            {
+               foreach($this->totalresultados as $r)
                {
-                  unlink('documentos.zip');
+                  $archivo_zip = $this->download_zip($r['ruta'], $r['nombrearchivo']);
                }
-            }
-            else
-            {
-               $this->new_error_msg('Ha ocurrido un problema al generar el zip');
+               
+               if($archivo_zip)
+               {
+                  header("Content-Type: application/zip");
+                  header("Content-Transfer-Encoding: Binary");
+                  header("Content-Length: " . filesize('documentos.zip'));
+                  header("Content-Disposition: attachment; filename=\"" . basename('documentos.zip') . "\"");
+                  readfile('documentos.zip');
+                  
+                  if( file_exists('documentos.zip') )
+                  {
+                     unlink('documentos.zip');
+                  }
+               }
+               else
+               {
+                  $this->new_error_msg('Ha ocurrido un problema al generar el zip');
+               }
             }
          }
       }
@@ -209,10 +200,9 @@ class informes_documentos extends fs_controller
    {
       $resultados = array();
       
-      //inicio y fin
+      /// inicio y fin
       $inicio = intval($this->offset);
       $fin = intval($inicio + FS_ITEM_LIMIT);
-
 
       if($this->mostrar == 'ventas')
       {
@@ -227,7 +217,7 @@ class informes_documentos extends fs_controller
          $num2 = 'numproveedor';
       }
 
-      //filtros.
+      /// filtros.
       $sql = '';
       $where = 'AND ';
       if($this->desde != '')
@@ -401,5 +391,21 @@ class informes_documentos extends fs_controller
          return array();
       }
    }
-
+   
+   public function is_image($name)
+   {
+      $is_image = FALSE;
+      $name = mb_strtolower($name, 'UTF-8');
+      
+      if( mb_substr($name, -4) == '.jpg' OR mb_substr($name, -5) == '.jpeg' )
+      {
+         $is_image = TRUE;
+      }
+      else if( mb_substr($name, -4) == '.png' OR mb_substr($name, -4) == '.gif' )
+      {
+         $is_image = TRUE;
+      }
+      
+      return $is_image;
+   }
 }
