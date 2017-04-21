@@ -104,7 +104,8 @@ class informes_documentos extends fs_controller
          
          $this->tipo = 'facturascli';
          $this->idtipo = 'idfactura';
-         $this->documento = FALSE;
+         $this->documento = 'factura_cliente';
+         
          if( isset($_REQUEST['tipo']) )
          {
             $this->tipo = $_REQUEST['tipo'];
