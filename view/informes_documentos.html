@@ -1,0 +1,263 @@
+{include="header"}
+
+<script type="text/javascript">
+   function clean_cliente()
+   {
+      document.f_custom_search.ac_cliente.value = '';
+      document.f_custom_search.codcliente.value = '';
+      document.f_custom_search.ac_cliente.focus();
+      document.f_custom_search.submit();
+   }
+   function clean_proveedor()
+   {
+      document.f_custom_search.ac_proveedor.value = '';
+      document.f_custom_search.codproveedor.value = '';
+      document.f_custom_search.ac_proveedor.focus();
+      document.f_custom_search.submit();
+   }
+   $(document).ready(function () {
+      $("#ac_cliente").autocomplete({
+         serviceUrl: '{$fsc->url()}',
+         paramName: 'buscar_cliente',
+         onSelect: function (suggestion) {
+            if (suggestion)
+            {
+               if (document.f_custom_search.codcliente.value != suggestion.data && suggestion.data != '')
+               {
+                  document.f_custom_search.codcliente.value = suggestion.data;
+                  document.f_custom_search.submit();
+               }
+            }
+         }
+      });
+      $("#ac_proveedor").autocomplete({
+         serviceUrl: '{$fsc->url()}',
+         paramName: 'buscar_proveedor',
+         onSelect: function (suggestion) {
+            if (suggestion)
+            {
+               if (document.f_custom_search.codproveedor.value != suggestion.data && suggestion.data != '')
+               {
+                  document.f_custom_search.codproveedor.value = suggestion.data;
+                  document.f_custom_search.submit();
+               }
+            }
+         }
+      });
+      $('[data-toggle="popover"]').popover({
+         placement : 'bottom',
+         trigger : 'hover',
+         content: function() {
+            return '<div class="thumbnail" style="margin: 0px;"><img src="'+$(this).data('img') + '" /></a>';
+         }
+      });
+   });
+</script>
+
+<div class="container-fluid">
+   <div class="row">
+      <div class="col-sm-12">
+         <div class="page-header">
+            <h1>
+               <i class="fa fa-file-text-o" aria-hidden="true"></i>
+               Gestión documental
+               <span class="btn-group">
+                  <a class="btn btn-xs btn-default" href="{$fsc->url()}" title="Recargar la página">
+                     <span class="glyphicon glyphicon-refresh"></span>
+                  </a>
+                  {if="$fsc->page->is_default()"}
+                  <a class="btn btn-xs btn-default active" href="{$fsc->url()}&amp;default_page=FALSE" title="desmarcar como página de inicio">
+                     <span class="glyphicon glyphicon-home"></span>
+                  </a>
+                  {else}
+                  <a class="btn btn-xs btn-default" href="{$fsc->url()}&amp;default_page=TRUE" title="marcar como página de inicio">
+                     <span class="glyphicon glyphicon-home"></span>
+                  </a>
+                  {/if}
+               </span>
+            </h1>
+            <p class="help-block">
+               Listado de documentos de compra o de venta con archivos adjuntos.
+            </p>
+         </div>
+         <ul class="nav nav-tabs">
+            <li{if="$fsc->mostrar=='compras'"} class="active"{/if}>
+               <a href="{$fsc->url()}&mostrar=compras">
+                  <span class="text-capitalize hidden-xs">Compras</span>
+                  <span class="visible-xs">Compras</span>
+               </a>
+            </li>
+            <li{if="$fsc->mostrar=='ventas'"} class="active"{/if}>
+               <a href="{$fsc->url()}&mostrar=ventas">
+                  <span class="text-capitalize hidden-xs">Ventas</span>
+                  <span class="visible-xs">Ventas</span>
+               </a>
+            </li>
+         </ul>
+         <br/>
+      </div>
+   </div>
+   <form name="f_custom_search" action="{$fsc->url()}" method="post" class="form">
+      <input type="hidden" name="codcliente" value="{$fsc->cliente->codcliente}"/>
+      <input type="hidden" name="codproveedor" value="{$fsc->proveedor->codproveedor}"/>
+      <input type="hidden" name="mostrar" value="{$fsc->mostrar}" />
+      <input type="hidden" name="offset" value="{$fsc->offset}"/>
+      <div class="row">
+         {if="$fsc->mostrar=='ventas'"}
+         <div class="col-sm-3">
+            <div class="form-group">
+               <b>Clientes</b>
+               <div class="input-group">
+                  <div class="input-group-addon ">
+                     <i class="fa fa-users" aria-hidden="true"></i>
+                  </div>
+                  {if="$fsc->cliente"}
+                  <input class="form-control" type="text" name="ac_cliente" value="{$fsc->cliente->nombre}" id="ac_cliente" autocomplete="off"/>
+                  {else}
+                  <input class="form-control" type="text" name="ac_cliente" id="ac_cliente" placeholder="Cualquier cliente" autocomplete="off"/>
+                  {/if}
+                  <span class="input-group-btn">
+                     <button class="btn btn-default" type="button" onclick="clean_cliente()">
+                        <span class="glyphicon glyphicon-remove"></span>
+                     </button>
+                  </span>
+               </div>
+            </div>
+         </div>
+         <div class="col-sm-2">
+            <div class="form-group">
+               <label>Tipo de documento</label>
+               <select name="tipo" class="form-control" onchange="this.form.submit()"> 
+                  <option value="presupuestoscli" {if="$fsc->tipo=='presupuestoscli'"} selected=""{/if}>Presupuestos</option>
+                  <option value="pedidoscli" {if="$fsc->tipo=='pedidoscli'"} selected=""{/if}>Pedidos</option>
+                  <option value="servicioscli" {if="$fsc->tipo=='servicioscli'"} selected=""{/if}>Servicios</option>
+                  <option value="albaranescli" {if="$fsc->tipo=='albaranescli'"} selected=""{/if}>Albaranes</option>
+                  <option value="facturascli" {if="$fsc->tipo=='facturascli'"} selected=""{/if}>Facturas</option>
+               </select>
+            </div>
+         </div>
+         {elseif="$fsc->mostrar=='compras'"}
+         <div class="col-sm-3">   
+            <div class="form-group">
+               <b>Proveedores</b>
+               <div class="input-group">
+                  <div class="input-group-addon ">
+                     <i class="fa fa-users" aria-hidden="true"></i>
+                  </div>
+                  {if="$fsc->proveedor"}
+                  <input class="form-control" type="text" name="ac_proveedor" value="{$fsc->proveedor->nombre}" id="ac_proveedor" autocomplete="off"/>
+                  {else}
+                  <input class="form-control" type="text" name="ac_proveedor" id="ac_proveedor" placeholder="Cualquier proveedor" autocomplete="off"/>
+                  {/if}
+                  <span class="input-group-btn">
+                     <button class="btn btn-default" type="button" onclick="clean_proveedor()">
+                        <span class="glyphicon glyphicon-remove"></span>
+                     </button>
+                  </span>
+               </div>
+            </div>
+         </div>
+         <div class="col-sm-2">
+            <div class="form-group">
+               <label>Tipo de documento</label>
+               <select name="tipo" class="form-control" onchange="this.form.submit()"> 
+                  <option value="pedidosprov" {if="$fsc->tipo=='pedidosprov'"} selected=""{/if}>Pedidos</option>
+                  <option value="albaranesprov" {if="$fsc->tipo=='albaranesprov'"} selected=""{/if}>Albaranes</option>
+                  <option value="facturasprov" {if="$fsc->tipo=='facturasprov'"} selected=""{/if}>Facturas</option>
+               </select>
+            </div>
+         </div>
+         {/if}
+         <div class="col-sm-2">
+            <div class="form-group">
+               <label>Fecha Desde</label>
+               <div class="input-group">
+                  <div class="input-group-addon">
+                     <i class="fa fa-file-text-o" aria-hidden="true"></i>
+                  </div>
+                  <input type="text" name="desde" value="{if="$fsc->desde"}{$fsc->desde}{/if}" class="form-control datepicker" placeholder="Desde" autocomplete="off" onchange="this.form.submit()"/>
+               </div>
+            </div>
+         </div>
+         <div class="col-sm-2">
+            <div class="form-group">
+               <label>Fecha Hasta</label>
+               <div class="input-group">
+                  <div class="input-group-addon">
+                     <i class="fa fa-file-text-o" aria-hidden="true"></i>
+                  </div>
+                  <input type="text" name="hasta" value="{if="$fsc->hasta"}{$fsc->hasta}{/if}" class="form-control datepicker" placeholder="Hasta" autocomplete="off" onchange="this.form.submit()"/>
+               </div>
+            </div>
+         </div>
+         {if="$fsc->totalresultados"}
+         <div class="col-sm-2">
+            <div>
+               <label>Generar Zip</label>
+            </div>
+            <a class="btn btn-sm btn-info" href="{$fsc->b_url}&download=zip" title="Descargar ZIP">
+               <span class="glyphicon glyphicon-download-alt"></span>
+               <span class="hidden-sm">&nbsp;ZIP</span>
+            </a>
+         </div>
+         {/if}
+      </div>
+   </form>
+   <div class="row">
+      <div class="col-sm-12">
+         <div class="table-responsive">
+            <table class="table table-hover">
+               <thead>
+                  <tr>
+                     <th class=" text-left">Fecha</th>
+                     <th class=" text-left">Código + {#FS_NUMERO2#}</th>
+                     <th class=" text-left">Nombre</th>
+                     <th class=" text-left">Nombre Archivo.</th>
+                     <th class=" text-left hidden-xs hidden-sm">Ruta</th>
+                     <th class=" text-left">Adjuntado Día y Hora</th>
+                     <th class=" text-right">Tamaño</th>
+                     <th class=" text-right">Usuario</th>
+                  </tr>
+               </thead>
+               {loop="$fsc->resultados"}
+               <tr>
+                  <td class="text-left">{$value['fecha']}</td>
+                  <td class="text-left"><a href="{$value['doc_url']}" target="_blank">{$value['codigo']}</a> {$value['numero2']}</td>
+                  <td class="text-left">{$value['nombre']}</td>
+                  <td class="text-left">
+                     {if="$fsc->is_image($value['nombrearchivo'])"}
+                     <i class="fa fa-file-image-o" aria-hidden="true"></i>
+                     <a href="{$value['ruta']}" target="_blank" data-toggle="popover" data-html="true" data-img="{$value['ruta']}">{$value['nombrearchivo']}</a>
+                     {else}
+                     <i class="fa fa-file-o" aria-hidden="true"></i>
+                     <a href="{$value['ruta']}" target="_blank">{$value['nombrearchivo']}</a>
+                     {/if}
+                  </td>
+                  <td class="text-left hidden-xs hidden-sm">{$value['ruta']}</td>
+                  <td class="text-left">{$value['docfecha']} {$value['dochora']}</td>
+                  <td class="text-right">{$value['tamano']}</td>
+                  <td class="text-right">{$value['usuario']}</td>
+               </tr>
+               {else}
+               <tr class="warning">
+                  <td colspan="8">Sin resultados.</td>
+               </tr>
+               {/loop}
+            </table>
+         </div>
+      </div>
+   </div>
+   <div class="row">
+      <div class="col-sm-12 text-center">
+         <ul class="pagination">
+            {loop="$fsc->paginas()"}
+            <li{if="$value['actual']"} class="active"{/if}>
+               <a href="{$value['url']}">{$value['num']}</a>
+            </li>
+            {/loop}
+         </ul>
+      </div>
+   </div>
+</div>
+
+{include="footer"}

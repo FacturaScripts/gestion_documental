@@ -1,0 +1,101 @@
+{include="header2"}
+
+<script type="text/javascript">
+   function delete_documento(id,name)
+   {
+      bootbox.confirm({
+         message: "¿Realmente desea eliminar "+name+"?",
+         title: '<b>Atención</b>',
+         callback: function(result) {
+            if (result) {
+               window.location.href = "{$fsc->url()}&delete="+id;
+            }
+         }
+      });
+      
+      return false;
+   }
+   $(document).ready(function () {
+      $('[data-toggle="popover"]').popover({
+         placement : 'bottom',
+         trigger : 'hover',
+         content: function() {
+            return '<div class="thumbnail" style="margin: 0px;"><img src="'+$(this).data('img') + '" /></a>';
+         }
+      });
+   });
+</script>
+
+<div class="container-fluid" style="margin-top: 15px;">
+   <div class="row">
+      <div class="col-sm-8">
+         <div class="table-responsive">
+            <table class="table table-hover">
+               <thead>
+                  <tr>
+                     <th>Archivo</th>
+                     <th class="text-right">Tamaño</th>
+                     <th class="text-right">Fecha</th>
+                     <th class="text-right hidden-sm">Hora</th>
+                     <th class="text-right">Usuario</th>
+                     <th></th>
+                  </tr>
+               </thead>
+               {loop="$fsc->documentos"}
+               <tr{if="!$value->file_exists()"} class="danger"{/if}>
+                  <td>
+                     {if="!$value->file_exists()"}
+                        <span class="glyphicon glyphicon-remove" aria-hidden="true" title="No se encuentra el archivo"></span>
+                        <a href="{$value->ruta}" target="_blank">{$value->nombre}</a>
+                     {elseif="$fsc->is_image($value->nombre)"}
+                        <i class="fa fa-file-image-o" aria-hidden="true"></i>
+                        <a href="{$value->ruta}" target="_blank" data-toggle="popover" data-html="true" data-img="{$value->ruta}">{$value->nombre}</a>
+                     {else}
+                        <span class="glyphicon glyphicon-file" aria-hidden="true"></span>
+                        <a href="{$value->ruta}" target="_blank">{$value->nombre}</a>
+                     {/if}
+                  </td>
+                  <td class="text-right">{$value->tamano()}</td>
+                  <td class="text-right">{$value->fecha}</td>
+                  <td class="text-right">{$value->hora}</td>
+                  <td class="text-right">{$value->usuario}</td>
+                  <td class="text-right">
+                     <a href="#" title="Eliminar el archivo" onclick="return delete_documento('{$value->id}','{$value->nombre}');">
+                        <span class="glyphicon glyphicon-trash"></span>
+                     </a>
+                  </td>
+               </tr>
+               {else}
+               <tr class="warning">
+                  <td colspan="6">Sin resultados.</td>
+               </tr>
+               {/loop}
+            </table>
+         </div>
+         <p class="help-block">
+            Los archivos se almacenan en la carpeta documentos de FacturaScripts.
+            Recuerda hacer copias de seguridad periódicamente.
+         </p>
+      </div>
+      <div class="col-sm-4">
+         <form enctype="multipart/form-data" action="{$fsc->url()}" method="post" class="form">
+            <input type="hidden" name="upload" value="TRUE"/>
+            <div class="panel panel-default">
+               <div class="panel-heading">
+                  <h3 class="panel-title">Añadir un documento</h3>
+               </div>
+               <div class="panel-body">
+                  <div class="form-group">
+                     <input name="fdocumento" type="file"/>
+                  </div>
+                  <button class="btn btn-sm btn-primary" type="submit" onclick="this.disabled=true;this.form.submit();">
+                     <span class="glyphicon glyphicon-floppy-disk"></span>&nbsp; Guardar
+                  </button>
+               </div>
+            </div>
+         </form>
+      </div>
+   </div>
+</div>
+
+{include="footer2"}
