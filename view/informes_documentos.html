@@ -104,7 +104,7 @@
       <input type="hidden" name="offset" value="{$fsc->offset}"/>
       <div class="row">
          {if="$fsc->mostrar=='ventas'"}
-         <div class="col-sm-3">
+         <div class="col-sm-2">
             <div class="form-group">
                <b>Clientes</b>
                <div class="input-group">
@@ -137,7 +137,7 @@
             </div>
          </div>
          {elseif="$fsc->mostrar=='compras'"}
-         <div class="col-sm-3">   
+         <div class="col-sm-3">
             <div class="form-group">
                <b>Proveedores</b>
                <div class="input-group">
@@ -192,6 +192,19 @@
          </div>
          {if="$fsc->totalresultados"}
          <div class="col-sm-2">
+            <label>Adjunto</label>
+            <div class="input-group has-success">
+               <div class="input-group-addon">
+                  <i class="fa fa-file-o" aria-hidden="true"></i>
+               </div>
+               <select name="b_adjunto" class="form-control" onchange="this.form.submit()">
+                  <option value="0"{if="$fsc->adj=='0'"} selected=""{/if}>Todos</option>
+                  <option value="1"{if="$fsc->adj=='1'"} selected=""{/if}>Con adjunto</option>
+                  <option value="2"{if="$fsc->adj=='2'"} selected=""{/if}>Sin adjunto</option>
+               </select>
+            </div>
+         </div>
+         <div class="col-sm-1">
             <div>
                <label>Generar Zip</label>
             </div>

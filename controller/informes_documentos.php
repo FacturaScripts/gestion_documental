@@ -47,6 +47,7 @@ class informes_documentos extends fs_controller
    public $b_url;
    public $offset;
    public $numresultados;
+   public $adj;
 
    public function __construct()
    {
@@ -81,6 +82,12 @@ class informes_documentos extends fs_controller
          if( isset($_REQUEST['hasta']))
          {
             $this->hasta = $_REQUEST['hasta'];
+         }
+
+         $this->adj = '0';
+         if( isset($_REQUEST['b_adjunto']))
+         {
+            $this->adj = $_REQUEST['b_adjunto'];
          }
          
          $this->offset = 0;
@@ -220,7 +227,7 @@ class informes_documentos extends fs_controller
 
       /// filtros.
       $sql = '';
-      $where = 'AND ';
+      $where = 'WHERE ';
       if($this->desde != '')
       {
          $sql .= $where . "fecha >= " . $this->empresa->var2str($this->desde);
@@ -245,7 +252,7 @@ class informes_documentos extends fs_controller
          $where = ' AND ';
       }
 
-      $sql = "SELECT * FROM " . $this->tipo . " WHERE numdocs >= '1' " . $sql . " ORDER BY fecha DESC;";
+      $sql = "SELECT * FROM " . $this->tipo . " " . $sql . " ORDER BY fecha DESC;";
       $data = $this->db->select($sql);
 
       if($data)
@@ -256,21 +263,39 @@ class informes_documentos extends fs_controller
 
             $adj0 = new documento_factura();
             $adjuntos = $adj0->all_from($this->idtipo . $prov, $d[$this->idtipo]);
-            foreach($adjuntos as $adj)
+            if ($adjuntos && $this->adj == '0' || $adjuntos && $this->adj == '1')
             {
-               $resultados[] = array(
-                   'codigo' => $documento->codigo,
-                   'doc_url' => $documento->url(),
-                   'fecha' => $documento->fecha,
-                   'nombre' => $documento->$nombre,
-                   'numero2' => $documento->$num2,
-                   'ruta' => $adj->ruta,
-                   'nombrearchivo' => $adj->nombre,
-                   'docfecha' => $adj->fecha,
-                   'dochora' => $adj->hora,
-                   'tamano' => $adj->tamano(),
-                   'usuario' => $adj->usuario,
-               );
+                foreach($adjuntos as $adj)
+                {
+                    $resultados[] = array(
+                        'codigo' => $documento->codigo,
+                        'doc_url' => $documento->url(),
+                        'fecha' => $documento->fecha,
+                        'nombre' => $documento->$nombre,
+                        'numero2' => $documento->$num2,
+                        'ruta' => $adj->ruta,
+                        'nombrearchivo' => $adj->nombre,
+                        'docfecha' => $adj->fecha,
+                        'dochora' => $adj->hora,
+                        'tamano' => $adj->tamano(),
+                        'usuario' => $adj->usuario,
+                    );
+                }
+            } else if (!$adjuntos && $this->adj == '0' || !$adjuntos && $this->adj == '2')
+            {
+                $resultados[] = array(
+                    'codigo' => $documento->codigo,
+                    'doc_url' => $documento->url(),
+                    'fecha' => $documento->fecha,
+                    'nombre' => $documento->$nombre,
+                    'numero2' => $documento->$num2,
+                    'ruta' => '',
+                    'nombrearchivo' => '',
+                    'docfecha' => '',
+                    'dochora' => '',
+                    'tamano' => '',
+                    'usuario' => '',
+                );
             }
          }
       }
