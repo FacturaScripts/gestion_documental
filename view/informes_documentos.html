@@ -208,7 +208,7 @@
             <div>
                <label>Generar Zip</label>
             </div>
-            <a class="btn btn-sm btn-info" href="{$fsc->b_url}&download=zip" title="Descargar ZIP">
+            <a class="btn btn-sm btn-info" href="{$fsc->b_url}&download=zip" title="Descargar ZIP" {if="$fsc->adj=='2'"}disabled{/if}>
                <span class="glyphicon glyphicon-download-alt"></span>
                <span class="hidden-sm">&nbsp;ZIP</span>
             </a>
