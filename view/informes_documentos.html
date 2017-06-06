@@ -51,6 +51,10 @@
             return '<div class="thumbnail" style="margin: 0px;"><img src="'+$(this).data('img') + '" /></a>';
          }
       });
+      $("#b_imprimir").click(function(event) {
+         event.preventDefault();
+         $("#modal_imprimir").modal('show');
+      });
    });
 </script>
 
@@ -279,6 +283,38 @@
             </li>
             {/loop}
          </ul>
+      </div>
+   </div>
+</div>
+
+<div class="modal fade" id="modal_imprimir">
+   <div class="modal-dialog">
+      <div class="modal-content">
+         <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h4 class="modal-title">Imprimir factura</h4>
+            {if="mt_rand(0,1)==0"}
+            <p class="help-block">
+               Más formatos disponibles <a href="https://www.facturascripts.com/buscar?query=imprimir" target="_blank">en la web</a>.
+            </p>
+            {else}
+            <p class="help-block">
+               Más formatos disponibles en el plugin <a href="https://www.facturascripts.com/plugin/plantillas_pdf" target="_blank">Plantillas PDF</a>.
+            </p>
+            {/if}
+         </div>
+         <div class="modal-body">
+         {loop="$fsc->extensions"}
+            {if="$value->type=='pdf'"}
+            <a href="{$fsc->b_url}&detalle=TRUE" target="_blank" class="btn btn-block btn-default">{$value->text}</a>
+            {/if}
+         {/loop}
+         </div>
+         <div class="modal-footer">
+            <a href="index.php?page=admin_empresa#impresion" target="_blank">
+               <span class="glyphicon glyphicon-wrench"></span>&nbsp; Opciones de impresión
+            </a>
+         </div>
       </div>
    </div>
 </div>
