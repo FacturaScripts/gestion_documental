@@ -524,20 +524,28 @@ class informes_documentos extends fs_controller
 
             $this->plantilla->documento = $this->plantilla->albaran;
 
-            $filename = 'albaran_' . $fecha . '_'.$this->plantilla->albaran->codigo.'.pdf';
+            $filename = 'albaran_' . $fecha . '_'.$this->plantilla->albaran->codigo;
 
             if (isset($_REQUEST['imprimir']) && $_REQUEST['imprimir'] == 'simple')
             {
+              $link = 'tmp/'.FS_TMP_NAME.'enviar/'.$filename.'_simple.pdf';
+
               $ventas_imprimir = new ventas_imprimir();
               $ventas_imprimir->articulo_traza = new articulo_traza();
               $ventas_imprimir->documento = $this->plantilla->albaran;
-              $ventas_imprimir->generar_pdf_albaran($filename.'_simple');
-              $files[] = 'tmp/'.FS_TMP_NAME.'enviar/'.$filename.'_simple';
+              $ventas_imprimir->generar_pdf_albaran($filename.'_simple.pdf');
+              $files[] = $link;
+              $archivo_zip = $this->download_zip($link, $filename.'_simple.pdf');
             } else
             {
-              $this->plantilla->generar_pdf_albaran($filename);
-              $files[] = 'tmp/'.FS_TMP_NAME.'enviar/'.$filename;
+              $link = 'tmp/'.FS_TMP_NAME.'enviar/'.$filename.'.pdf';
+
+              $this->plantilla->generar_pdf_albaran($filename.'.pdf');
+              $files[] = $link;
+              $archivo_zip = $this->download_zip($link, $filename.'.pdf');
             }
+
+
          }
          else if($_REQUEST['tipo'] == 'facturascli')
          {
@@ -546,19 +554,25 @@ class informes_documentos extends fs_controller
 
             $this->plantilla->documento = $this->plantilla->factura;
 
-            $filename = 'factura_' . $fecha . '_'.$this->plantilla->factura->codigo.'.pdf';
+            $filename = 'factura_' . $fecha . '_'.$this->plantilla->factura->codigo;
 
             if (isset($_REQUEST['imprimir']) && $_REQUEST['imprimir'] == 'simple')
             {
+              $link = 'tmp/'.FS_TMP_NAME.'enviar/'.$filename.'_simple.pdf';
+
               $ventas_imprimir = new ventas_imprimir();
               $ventas_imprimir->articulo_traza = new articulo_traza();
               $ventas_imprimir->documento = $this->plantilla->factura;
-              $ventas_imprimir->generar_pdf_factura('simple', $filename.'_simple');
-              $files[] = 'tmp/'.FS_TMP_NAME.'enviar/'.$filename.'_simple';
+              $ventas_imprimir->generar_pdf_factura('simple', $filename.'_simple.pdf');
+              $files[] = $link;
+              $archivo_zip = $this->download_zip($link, $filename.'_simple.pdf');
             } else
             {
-              $this->plantilla->generar_pdf_factura($filename);
-              $files[] = 'tmp/'.FS_TMP_NAME.'enviar/'.$filename;
+              $link = 'tmp/'.FS_TMP_NAME.'enviar/'.$filename.'.pdf';
+
+              $this->plantilla->generar_pdf_factura($filename.'.pdf');
+              $files[] = $link;
+              $archivo_zip = $this->download_zip($link, $filename.'.pdf');
             }
          }
          else if($_REQUEST['tipo'] == 'presupuestoscli')
@@ -568,18 +582,24 @@ class informes_documentos extends fs_controller
 
             $this->plantilla->documento = $this->plantilla->presupuesto;
 
-            $filename = 'presupuesto_' . $fecha . '_'.$this->plantilla->presupuesto->codigo.'.pdf';
+            $filename = 'presupuesto_' . $fecha . '_'.$this->plantilla->presupuesto->codigo;
 
             if (isset($_REQUEST['imprimir']) && $_REQUEST['imprimir'] == 'simple')
             {
+              $link = 'tmp/'.FS_TMP_NAME.'enviar/'.$filename.'_simple.pdf';
+
               $imprimir_presu_pedi = new imprimir_presu_pedi();
               $imprimir_presu_pedi->documento = $this->plantilla->presupuesto;
-              $imprimir_presu_pedi->generar_pdf_presupuesto($filename.'_simple');
-              $files[] = 'tmp/'.FS_TMP_NAME.'enviar/'.$filename.'_simple';
+              $imprimir_presu_pedi->generar_pdf_presupuesto($filename.'_simple.pdf');
+              $files[] = $link;
+              $archivo_zip = $this->download_zip($link, $filename.'_simple.pdf');
             } else
             {
-              $this->plantilla->generar_pdf_presupuesto($filename);
-              $files[] = 'tmp/'.FS_TMP_NAME.'enviar/'.$filename;
+              $link = 'tmp/'.FS_TMP_NAME.'enviar/'.$filename.'.pdf';
+
+              $this->plantilla->generar_pdf_presupuesto($filename.'.pdf');
+              $files[] = $link;
+              $archivo_zip = $this->download_zip($link, $filename.'.pdf');
             }
          }
          else if($_REQUEST['tipo'] == 'pedidoscli')
@@ -589,21 +609,51 @@ class informes_documentos extends fs_controller
 
             $this->plantilla->documento = $this->plantilla->pedido;
 
-            $filename = 'pedido_' . $fecha . '_'.$this->plantilla->pedido->codigo.'.pdf';
+            $filename = 'pedido_' . $fecha . '_'.$this->plantilla->pedido->codigo;
 
             if (isset($_REQUEST['imprimir']) && $_REQUEST['imprimir'] == 'simple')
             {
+              $link = 'tmp/'.FS_TMP_NAME.'enviar/'.$filename.'_simple.pdf';
+
               $imprimir_presu_pedi = new imprimir_presu_pedi();
               $imprimir_presu_pedi->documento = $this->plantilla->pedido;
-              $imprimir_presu_pedi->generar_pdf_pedido($filename.'_simple');
-              $files[] = 'tmp/'.FS_TMP_NAME.'enviar/'.$filename.'_simple';
+              $imprimir_presu_pedi->generar_pdf_pedido($filename.'_simple.pdf');
+              $files[] = $link;
+              $archivo_zip = $this->download_zip($link, $filename.'_simple.pdf');
             } else
             {
-              $this->plantilla->generar_pdf_pedido($filename);
-              $files[] = 'tmp/'.FS_TMP_NAME.'enviar/'.$filename;
+              $link = 'tmp/'.FS_TMP_NAME.'enviar/'.$filename.'.pdf';
+
+              $this->plantilla->generar_pdf_pedido($filename.'.pdf');
+              $files[] = $link;
+              $archivo_zip = $this->download_zip($link, $filename.'.pdf');
             }
          }
       }
+
+      if($archivo_zip != '')
+      {
+         header("Content-Type: application/zip");
+         header("Content-Transfer-Encoding: Binary");
+         header("Content-Length: " . filesize('documentos.zip'));
+         header("Content-Disposition: attachment; filename=\"" . basename('documentos.zip') . "\"");
+         readfile('documentos.zip');
+
+         if( file_exists('documentos.zip') )
+         {
+           unlink('documentos.zip');
+           for ($i=0; $i<count($files); $i++)
+           {
+              unlink($files[$i]);
+           }
+         }
+      }
+      else
+      {
+         $this->new_error_msg('Ha ocurrido un problema al generar el zip');
+      }
+
+      $this->new_message("Documentos creados correctamente. Descárgalos <a href='https://www.google.es' target='_blank'>aquí</a>.");
    }
 
    private function share_extensions()
