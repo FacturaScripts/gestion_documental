@@ -137,7 +137,7 @@
             </div>
          </div>
          {elseif="$fsc->mostrar=='compras'"}
-         <div class="col-sm-3">
+         <div class="col-sm-2">
             <div class="form-group">
                <b>Proveedores</b>
                <div class="input-group">
@@ -211,6 +211,16 @@
             <a class="btn btn-sm btn-info" href="{$fsc->b_url}&download=zip" title="Descargar ZIP" {if="$fsc->adj=='2'"}disabled{/if}>
                <span class="glyphicon glyphicon-download-alt"></span>
                <span class="hidden-sm">&nbsp;ZIP</span>
+            </a>
+         </div>
+         {/if}
+         {if="$fsc->totalresultados && $fsc->mostrar!='compras' && $fsc->tipo!='servicioscli'"}
+         <div class="col-sm-1">
+            <div>
+               <label>Generar detalle</label>
+            </div>
+            <a href="{$fsc->b_url}&detalle=TRUE" target="_blank" class="btn btn-default btn-sm" id="b_imprimir">
+               <span class="glyphicon glyphicon-eye-open"></span>&nbsp; Detalle
             </a>
          </div>
          {/if}
