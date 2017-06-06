@@ -306,7 +306,7 @@
          <div class="modal-body">
          {loop="$fsc->extensions"}
             {if="$value->type=='pdf'"}
-            <a href="{$fsc->b_url}&detalle=TRUE" target="_blank" class="btn btn-block btn-default">{$value->text}</a>
+            <a href="{$fsc->b_url}{$value->params}" target="_blank" class="btn btn-block btn-default">{$value->text}</a>
             {/if}
          {/loop}
          </div>
