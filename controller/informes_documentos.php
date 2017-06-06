@@ -31,8 +31,11 @@ require_model('pedido_cliente.php');
 require_model('pedido_proveedor.php');
 require_model('presupuesto_cliente.php');
 require_model('servicio_cliente.php');
+require_model('articulo_traza.php');
 
 require_once 'plugins/plantillas_pdf/extra/plantillas_setup.php';
+require_once 'plugins/facturacion_base/controller/ventas_imprimir.php';
+require_once 'plugins/presupuestos_y_pedidos/controller/imprimir_presu_pedi.php';
 
 class informes_documentos extends fs_controller
 {
@@ -222,6 +225,8 @@ class informes_documentos extends fs_controller
             }
          }
       }
+
+      $this->share_extensions();
    }
 
    /**
@@ -521,8 +526,18 @@ class informes_documentos extends fs_controller
 
             $filename = 'albaran_' . $fecha . '_'.$this->plantilla->albaran->codigo.'.pdf';
 
-            $this->plantilla->generar_pdf_albaran($filename);
-            $files[] = 'tmp/'.FS_TMP_NAME.'enviar/'.$filename;
+            if (isset($_REQUEST['imprimir']) && $_REQUEST['imprimir'] == 'simple')
+            {
+              $ventas_imprimir = new ventas_imprimir();
+              $ventas_imprimir->articulo_traza = new articulo_traza();
+              $ventas_imprimir->documento = $this->plantilla->albaran;
+              $ventas_imprimir->generar_pdf_albaran($filename.'_simple');
+              $files[] = 'tmp/'.FS_TMP_NAME.'enviar/'.$filename.'_simple';
+            } else
+            {
+              $this->plantilla->generar_pdf_albaran($filename);
+              $files[] = 'tmp/'.FS_TMP_NAME.'enviar/'.$filename;
+            }
          }
          else if($_REQUEST['tipo'] == 'facturascli')
          {
@@ -533,8 +548,18 @@ class informes_documentos extends fs_controller
 
             $filename = 'factura_' . $fecha . '_'.$this->plantilla->factura->codigo.'.pdf';
 
-            $this->plantilla->generar_pdf_factura($filename);
-            $files[] = 'tmp/'.FS_TMP_NAME.'enviar/'.$filename;
+            if (isset($_REQUEST['imprimir']) && $_REQUEST['imprimir'] == 'simple')
+            {
+              $ventas_imprimir = new ventas_imprimir();
+              $ventas_imprimir->articulo_traza = new articulo_traza();
+              $ventas_imprimir->documento = $this->plantilla->factura;
+              $ventas_imprimir->generar_pdf_factura('simple', $filename.'_simple');
+              $files[] = 'tmp/'.FS_TMP_NAME.'enviar/'.$filename.'_simple';
+            } else
+            {
+              $this->plantilla->generar_pdf_factura($filename);
+              $files[] = 'tmp/'.FS_TMP_NAME.'enviar/'.$filename;
+            }
          }
          else if($_REQUEST['tipo'] == 'presupuestoscli')
          {
@@ -545,8 +570,17 @@ class informes_documentos extends fs_controller
 
             $filename = 'presupuesto_' . $fecha . '_'.$this->plantilla->presupuesto->codigo.'.pdf';
 
-            $this->plantilla->generar_pdf_presupuesto($filename);
-            $files[] = 'tmp/'.FS_TMP_NAME.'enviar/'.$filename;
+            if (isset($_REQUEST['imprimir']) && $_REQUEST['imprimir'] == 'simple')
+            {
+              $imprimir_presu_pedi = new imprimir_presu_pedi();
+              $imprimir_presu_pedi->documento = $this->plantilla->presupuesto;
+              $imprimir_presu_pedi->generar_pdf_presupuesto($filename.'_simple');
+              $files[] = 'tmp/'.FS_TMP_NAME.'enviar/'.$filename.'_simple';
+            } else
+            {
+              $this->plantilla->generar_pdf_presupuesto($filename);
+              $files[] = 'tmp/'.FS_TMP_NAME.'enviar/'.$filename;
+            }
          }
          else if($_REQUEST['tipo'] == 'pedidoscli')
          {
@@ -557,8 +591,39 @@ class informes_documentos extends fs_controller
 
             $filename = 'pedido_' . $fecha . '_'.$this->plantilla->pedido->codigo.'.pdf';
 
-            $this->plantilla->generar_pdf_pedido($filename);
-            $files[] = 'tmp/'.FS_TMP_NAME.'enviar/'.$filename;
+            if (isset($_REQUEST['imprimir']) && $_REQUEST['imprimir'] == 'simple')
+            {
+              $imprimir_presu_pedi = new imprimir_presu_pedi();
+              $imprimir_presu_pedi->documento = $this->plantilla->pedido;
+              $imprimir_presu_pedi->generar_pdf_pedido($filename.'_simple');
+              $files[] = 'tmp/'.FS_TMP_NAME.'enviar/'.$filename.'_simple';
+            } else
+            {
+              $this->plantilla->generar_pdf_pedido($filename);
+              $files[] = 'tmp/'.FS_TMP_NAME.'enviar/'.$filename;
+            }
+         }
+      }
+   }
+
+   private function share_extensions()
+   {
+      $extensiones = array(
+          array(
+              'name' => 'imprimir_simple',
+              'page_from' => __CLASS__,
+              'page_to' => 'informes_documentos',
+              'type' => 'pdf',
+              'text' => '<span class="glyphicon glyphicon-print"></span>&nbsp; Documentos simple',
+              'params' => '&detalle=TRUE&imprimir=simple'
+          )
+      );
+      foreach($extensiones as $ext)
+      {
+         $fsext = new fs_extension($ext);
+         if( !$fsext->save() )
+         {
+            $this->new_error_msg('Error al guardar la extensión '.$ext['name']);
          }
       }
    }
