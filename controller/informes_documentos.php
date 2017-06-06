@@ -31,6 +31,11 @@ require_model('pedido_cliente.php');
 require_model('pedido_proveedor.php');
 require_model('presupuesto_cliente.php');
 require_model('servicio_cliente.php');
+require_model('articulo_traza.php');
+
+require_once 'plugins/plantillas_pdf/extra/plantillas_setup.php';
+require_once 'plugins/facturacion_base/controller/ventas_imprimir.php';
+require_once 'plugins/presupuestos_y_pedidos/controller/imprimir_presu_pedi.php';
 
 class informes_documentos extends fs_controller
 {
@@ -47,6 +52,10 @@ class informes_documentos extends fs_controller
    public $b_url;
    public $offset;
    public $numresultados;
+   public $adj;
+
+   private $plantilla;
+   private $pdf_setup;
 
    public function __construct()
    {
@@ -83,10 +92,21 @@ class informes_documentos extends fs_controller
             $this->hasta = $_REQUEST['hasta'];
          }
          
+         $this->adj = '0';
+         if( isset($_REQUEST['b_adjunto']))
+         {
+            $this->adj = $_REQUEST['b_adjunto'];
+         }
+         
          $this->offset = 0;
          if(isset($_REQUEST['offset']))
          {
             $this->offset = $_REQUEST['offset'];
+         }
+
+         if (isset($_REQUEST['detalle']))
+         {
+            $this->generar_detalle();
          }
          
          $this->cliente = new cliente();
@@ -102,9 +122,17 @@ class informes_documentos extends fs_controller
             $this->proveedor = $pro0->get($_REQUEST['codproveedor']);
          }
          
-         $this->tipo = 'facturascli';
-         $this->idtipo = 'idfactura';
-         $this->documento = 'factura_cliente';
+         if ($this->mostrar == 'compras')
+         {
+            $this->tipo = 'facturasprov';
+            $this->idtipo = 'idfactura';
+            $this->documento = 'factura_proveedor';
+         } else
+         {
+            $this->tipo = 'facturascli';
+            $this->idtipo = 'idfactura';
+            $this->documento = 'factura_cliente';
+         }
          
          if( isset($_REQUEST['tipo']) )
          {
@@ -160,19 +188,24 @@ class informes_documentos extends fs_controller
                  . "&tipo=" . $this->tipo
                  . "&desde=" . $this->desde
                  . "&hasta=" . $this->hasta
-                 . "&offset=" . $this->offset;
+                 . "&offset=" . $this->offset
+                 . "&b_adjunto=" . $this->adj;
          
          /// ¿Descargar zip?
          if( isset($_REQUEST['download']) )
          {
             if($this->totalresultados)
             {
+               $archivo_zip = '';
                foreach($this->totalresultados as $r)
                {
-                  $archivo_zip = $this->download_zip($r['ruta'], $r['nombrearchivo']);
+                  if (!empty($r['ruta']))
+                  {
+                    $archivo_zip = $this->download_zip($r['ruta'], $r['nombrearchivo']);
+                  }
                }
                
-               if($archivo_zip)
+               if($archivo_zip != '')
                {
                   header("Content-Type: application/zip");
                   header("Content-Transfer-Encoding: Binary");
@@ -192,6 +225,8 @@ class informes_documentos extends fs_controller
             }
          }
       }
+
+      $this->share_extensions();
    }
 
    /**
@@ -220,7 +255,7 @@ class informes_documentos extends fs_controller
 
       /// filtros.
       $sql = '';
-      $where = 'AND ';
+      $where = 'WHERE ';
       if($this->desde != '')
       {
          $sql .= $where . "fecha >= " . $this->empresa->var2str($this->desde);
@@ -245,7 +280,7 @@ class informes_documentos extends fs_controller
          $where = ' AND ';
       }
 
-      $sql = "SELECT * FROM " . $this->tipo . " WHERE numdocs >= '1' " . $sql . " ORDER BY fecha DESC;";
+      $sql = "SELECT * FROM " . $this->tipo . " " . $sql . " ORDER BY fecha DESC;";
       $data = $this->db->select($sql);
 
       if($data)
@@ -256,21 +291,39 @@ class informes_documentos extends fs_controller
 
             $adj0 = new documento_factura();
             $adjuntos = $adj0->all_from($this->idtipo . $prov, $d[$this->idtipo]);
-            foreach($adjuntos as $adj)
+            if ($adjuntos && $this->adj == '0' || $adjuntos && $this->adj == '1')
             {
-               $resultados[] = array(
-                   'codigo' => $documento->codigo,
-                   'doc_url' => $documento->url(),
-                   'fecha' => $documento->fecha,
-                   'nombre' => $documento->$nombre,
-                   'numero2' => $documento->$num2,
-                   'ruta' => $adj->ruta,
-                   'nombrearchivo' => $adj->nombre,
-                   'docfecha' => $adj->fecha,
-                   'dochora' => $adj->hora,
-                   'tamano' => $adj->tamano(),
-                   'usuario' => $adj->usuario,
-               );
+                foreach($adjuntos as $adj)
+                {
+                    $resultados[] = array(
+                        'codigo' => $documento->codigo,
+                        'doc_url' => $documento->url(),
+                        'fecha' => $documento->fecha,
+                        'nombre' => $documento->$nombre,
+                        'numero2' => $documento->$num2,
+                        'ruta' => $adj->ruta,
+                        'nombrearchivo' => $adj->nombre,
+                        'docfecha' => $adj->fecha,
+                        'dochora' => $adj->hora,
+                        'tamano' => $adj->tamano(),
+                        'usuario' => $adj->usuario,
+                    );
+                }
+            } else if (!$adjuntos && $this->adj == '0' || !$adjuntos && $this->adj == '2')
+            {
+                $resultados[] = array(
+                    'codigo' => $documento->codigo,
+                    'doc_url' => $documento->url(),
+                    'fecha' => $documento->fecha,
+                    'nombre' => $documento->$nombre,
+                    'numero2' => $documento->$num2,
+                    'ruta' => '',
+                    'nombrearchivo' => '',
+                    'docfecha' => '',
+                    'dochora' => '',
+                    'tamano' => '',
+                    'usuario' => '',
+                );
             }
          }
       }
@@ -408,5 +461,220 @@ class informes_documentos extends fs_controller
       }
       
       return $is_image;
+   }
+
+   public function generar_detalle()
+   {
+      // definir archivos para concatenar
+      $files = array();
+
+      /// filtros.
+      $sql = '';
+      $where = 'WHERE ';
+      if($this->desde != '')
+      {
+         $sql .= $where . "fecha >= " . $this->empresa->var2str($this->desde);
+         $where = ' AND ';
+      }
+
+      if($this->hasta != '')
+      {
+         $sql .= $where . "fecha <= " . $this->empresa->var2str($this->hasta);
+         $where = ' AND ';
+      }
+
+      if(isset($_REQUEST['codcliente']) && $_REQUEST['codcliente'] != '')
+      {
+         $sql .= $where . "codcliente = " . $this->empresa->var2str($_REQUEST['codcliente']);
+         $where = ' AND ';
+      }
+
+      if(isset($_REQUEST['codproveedor']) && $_REQUEST['codproveedor'] != '')
+      {
+         $sql .= $where . "codproveedor = " . $this->empresa->var2str($_REQUEST['codproveedor']);
+         $where = ' AND ';
+      }
+
+      if ($this->adj == '1')
+      {
+         $sql .= $where . "numdocs = '1'";
+         $where = ' AND ';
+      } else if ($this->adj == '2')
+      {
+         $sql .= $where . "numdocs = '0'";
+         $where = ' AND ';
+      }
+
+      $sql = "SELECT * FROM " . $_REQUEST['tipo'] . " " . $sql . " ORDER BY fecha DESC;";
+      $data = $this->db->select($sql);
+
+      $ppdf_setup = new plantillas_setup();
+      $this->pdf_setup = $ppdf_setup->setup;
+      $this->plantilla = $ppdf_setup->cargar_plantilla();
+
+      $cliente = new cliente();
+
+      foreach ($data as $d) {
+         $fecha = date('Y-m-d', strtotime($d['fecha']));
+
+         if($_REQUEST['tipo'] == 'albaranescli')
+         {
+            $this->plantilla->albaran = new albaran_cliente($d);
+            $this->plantilla->cliente = $cliente->get($this->plantilla->albaran->codcliente);
+
+            $this->plantilla->documento = $this->plantilla->albaran;
+
+            $filename = 'albaran_' . $fecha . '_'.$this->plantilla->albaran->codigo;
+
+            if (isset($_REQUEST['imprimir']) && $_REQUEST['imprimir'] == 'simple')
+            {
+              $link = 'tmp/'.FS_TMP_NAME.'enviar/'.$filename.'_simple.pdf';
+
+              $ventas_imprimir = new ventas_imprimir();
+              $ventas_imprimir->articulo_traza = new articulo_traza();
+              $ventas_imprimir->documento = $this->plantilla->albaran;
+              $ventas_imprimir->generar_pdf_albaran($filename.'_simple.pdf');
+              $files[] = $link;
+              $archivo_zip = $this->download_zip($link, $filename.'_simple.pdf');
+            } else
+            {
+              $link = 'tmp/'.FS_TMP_NAME.'enviar/'.$filename.'.pdf';
+
+              $this->plantilla->generar_pdf_albaran($filename.'.pdf');
+              $files[] = $link;
+              $archivo_zip = $this->download_zip($link, $filename.'.pdf');
+            }
+
+
+         }
+         else if($_REQUEST['tipo'] == 'facturascli')
+         {
+            $this->plantilla->factura = new factura_cliente($d);
+            $this->plantilla->cliente = $cliente->get($this->plantilla->factura->codcliente);
+
+            $this->plantilla->documento = $this->plantilla->factura;
+
+            $filename = 'factura_' . $fecha . '_'.$this->plantilla->factura->codigo;
+
+            if (isset($_REQUEST['imprimir']) && $_REQUEST['imprimir'] == 'simple')
+            {
+              $link = 'tmp/'.FS_TMP_NAME.'enviar/'.$filename.'_simple.pdf';
+
+              $ventas_imprimir = new ventas_imprimir();
+              $ventas_imprimir->articulo_traza = new articulo_traza();
+              $ventas_imprimir->documento = $this->plantilla->factura;
+              $ventas_imprimir->generar_pdf_factura('simple', $filename.'_simple.pdf');
+              $files[] = $link;
+              $archivo_zip = $this->download_zip($link, $filename.'_simple.pdf');
+            } else
+            {
+              $link = 'tmp/'.FS_TMP_NAME.'enviar/'.$filename.'.pdf';
+
+              $this->plantilla->generar_pdf_factura($filename.'.pdf');
+              $files[] = $link;
+              $archivo_zip = $this->download_zip($link, $filename.'.pdf');
+            }
+         }
+         else if($_REQUEST['tipo'] == 'presupuestoscli')
+         {
+            $this->plantilla->presupuesto = new presupuesto_cliente($d);
+            $this->plantilla->cliente = $cliente->get($this->plantilla->presupuesto->codcliente);
+
+            $this->plantilla->documento = $this->plantilla->presupuesto;
+
+            $filename = 'presupuesto_' . $fecha . '_'.$this->plantilla->presupuesto->codigo;
+
+            if (isset($_REQUEST['imprimir']) && $_REQUEST['imprimir'] == 'simple')
+            {
+              $link = 'tmp/'.FS_TMP_NAME.'enviar/'.$filename.'_simple.pdf';
+
+              $imprimir_presu_pedi = new imprimir_presu_pedi();
+              $imprimir_presu_pedi->documento = $this->plantilla->presupuesto;
+              $imprimir_presu_pedi->generar_pdf_presupuesto($filename.'_simple.pdf');
+              $files[] = $link;
+              $archivo_zip = $this->download_zip($link, $filename.'_simple.pdf');
+            } else
+            {
+              $link = 'tmp/'.FS_TMP_NAME.'enviar/'.$filename.'.pdf';
+
+              $this->plantilla->generar_pdf_presupuesto($filename.'.pdf');
+              $files[] = $link;
+              $archivo_zip = $this->download_zip($link, $filename.'.pdf');
+            }
+         }
+         else if($_REQUEST['tipo'] == 'pedidoscli')
+         {
+            $this->plantilla->pedido = new pedido_cliente($d);
+            $this->plantilla->cliente = $cliente->get($this->plantilla->pedido->codcliente);
+
+            $this->plantilla->documento = $this->plantilla->pedido;
+
+            $filename = 'pedido_' . $fecha . '_'.$this->plantilla->pedido->codigo;
+
+            if (isset($_REQUEST['imprimir']) && $_REQUEST['imprimir'] == 'simple')
+            {
+              $link = 'tmp/'.FS_TMP_NAME.'enviar/'.$filename.'_simple.pdf';
+
+              $imprimir_presu_pedi = new imprimir_presu_pedi();
+              $imprimir_presu_pedi->documento = $this->plantilla->pedido;
+              $imprimir_presu_pedi->generar_pdf_pedido($filename.'_simple.pdf');
+              $files[] = $link;
+              $archivo_zip = $this->download_zip($link, $filename.'_simple.pdf');
+            } else
+            {
+              $link = 'tmp/'.FS_TMP_NAME.'enviar/'.$filename.'.pdf';
+
+              $this->plantilla->generar_pdf_pedido($filename.'.pdf');
+              $files[] = $link;
+              $archivo_zip = $this->download_zip($link, $filename.'.pdf');
+            }
+         }
+      }
+
+      if($archivo_zip != '')
+      {
+         header("Content-Type: application/zip");
+         header("Content-Transfer-Encoding: Binary");
+         header("Content-Length: " . filesize('documentos.zip'));
+         header("Content-Disposition: attachment; filename=\"" . basename('documentos.zip') . "\"");
+         readfile('documentos.zip');
+
+         if( file_exists('documentos.zip') )
+         {
+           unlink('documentos.zip');
+           for ($i=0; $i<count($files); $i++)
+           {
+              unlink($files[$i]);
+           }
+         }
+      }
+      else
+      {
+         $this->new_error_msg('Ha ocurrido un problema al generar el zip');
+      }
+
+      $this->new_message("Documentos creados correctamente. Descárgalos <a href='https://www.google.es' target='_blank'>aquí</a>.");
+   }
+
+   private function share_extensions()
+   {
+      $extensiones = array(
+          array(
+              'name' => 'imprimir_simple',
+              'page_from' => __CLASS__,
+              'page_to' => 'informes_documentos',
+              'type' => 'pdf',
+              'text' => '<span class="glyphicon glyphicon-print"></span>&nbsp; Documentos simple',
+              'params' => '&detalle=TRUE&imprimir=simple'
+          )
+      );
+      foreach($extensiones as $ext)
+      {
+         $fsext = new fs_extension($ext);
+         if( !$fsext->save() )
+         {
+            $this->new_error_msg('Error al guardar la extensión '.$ext['name']);
+         }
+      }
    }
 }

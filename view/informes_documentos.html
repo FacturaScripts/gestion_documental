@@ -51,6 +51,10 @@
             return '<div class="thumbnail" style="margin: 0px;"><img src="'+$(this).data('img') + '" /></a>';
          }
       });
+      $("#b_imprimir").click(function(event) {
+         event.preventDefault();
+         $("#modal_imprimir").modal('show');
+      });
    });
 </script>
 
@@ -104,7 +108,7 @@
       <input type="hidden" name="offset" value="{$fsc->offset}"/>
       <div class="row">
          {if="$fsc->mostrar=='ventas'"}
-         <div class="col-sm-3">
+         <div class="col-sm-2">
             <div class="form-group">
                <b>Clientes</b>
                <div class="input-group">
@@ -137,7 +141,7 @@
             </div>
          </div>
          {elseif="$fsc->mostrar=='compras'"}
-         <div class="col-sm-3">   
+         <div class="col-sm-2">
             <div class="form-group">
                <b>Proveedores</b>
                <div class="input-group">
@@ -190,14 +194,37 @@
                </div>
             </div>
          </div>
-         {if="$fsc->totalresultados"}
          <div class="col-sm-2">
+            <label>Adjunto</label>
+            <div class="input-group has-success">
+               <div class="input-group-addon">
+                  <i class="fa fa-file-o" aria-hidden="true"></i>
+               </div>
+               <select name="b_adjunto" class="form-control" onchange="this.form.submit()">
+                  <option value="0"{if="$fsc->adj=='0'"} selected=""{/if}>Todos</option>
+                  <option value="1"{if="$fsc->adj=='1'"} selected=""{/if}>Con adjunto</option>
+                  <option value="2"{if="$fsc->adj=='2'"} selected=""{/if}>Sin adjunto</option>
+               </select>
+            </div>
+         </div>
+         {if="$fsc->totalresultados"}
+         <div class="col-sm-1">
             <div>
                <label>Generar Zip</label>
             </div>
-            <a class="btn btn-sm btn-info" href="{$fsc->b_url}&download=zip" title="Descargar ZIP">
+            <a class="btn btn-sm btn-info" href="{$fsc->b_url}&download=zip" title="Descargar ZIP" {if="$fsc->adj=='2'"}disabled{/if}>
                <span class="glyphicon glyphicon-download-alt"></span>
                <span class="hidden-sm">&nbsp;ZIP</span>
+            </a>
+         </div>
+         {/if}
+         {if="$fsc->totalresultados && $fsc->mostrar!='compras' && $fsc->tipo!='servicioscli'"}
+         <div class="col-sm-1">
+            <div>
+               <label>Generar detalle</label>
+            </div>
+            <a href="{$fsc->b_url}&detalle=TRUE" target="_blank" class="btn btn-default btn-sm" id="b_imprimir">
+               <span class="glyphicon glyphicon-eye-open"></span>&nbsp; Detalle
             </a>
          </div>
          {/if}
@@ -260,4 +287,35 @@
    </div>
 </div>
 
+<div class="modal fade" id="modal_imprimir">
+   <div class="modal-dialog">
+      <div class="modal-content">
+         <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h4 class="modal-title">Imprimir factura</h4>
+            {if="mt_rand(0,1)==0"}
+            <p class="help-block">
+               Más formatos disponibles <a href="https://www.facturascripts.com/buscar?query=imprimir" target="_blank">en la web</a>.
+            </p>
+            {else}
+            <p class="help-block">
+               Más formatos disponibles en el plugin <a href="https://www.facturascripts.com/plugin/plantillas_pdf" target="_blank">Plantillas PDF</a>.
+            </p>
+            {/if}
+         </div>
+         <div class="modal-body">
+         {loop="$fsc->extensions"}
+            {if="$value->type=='pdf'"}
+            <a href="{$fsc->b_url}{$value->params}" target="_blank" class="btn btn-block btn-default">{$value->text}</a>
+            {/if}
+         {/loop}
+         </div>
+         <div class="modal-footer">
+            <a href="index.php?page=admin_empresa#impresion" target="_blank">
+               <span class="glyphicon glyphicon-wrench"></span>&nbsp; Opciones de impresión
+            </a>
+         </div>
+      </div>
+   </div>
+</div>
 {include="footer"}
