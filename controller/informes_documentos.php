@@ -652,8 +652,6 @@ class informes_documentos extends fs_controller
       {
          $this->new_error_msg('Ha ocurrido un problema al generar el zip');
       }
-
-      $this->new_message("Documentos creados correctamente. Descárgalos <a href='https://www.google.es' target='_blank'>aquí</a>.");
    }
 
    private function share_extensions()
