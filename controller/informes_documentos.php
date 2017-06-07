@@ -91,7 +91,7 @@ class informes_documentos extends fs_controller
          {
             $this->hasta = $_REQUEST['hasta'];
          }
-
+         
          $this->adj = '0';
          if( isset($_REQUEST['b_adjunto']))
          {
@@ -133,7 +133,7 @@ class informes_documentos extends fs_controller
             $this->idtipo = 'idfactura';
             $this->documento = 'factura_cliente';
          }
-
+         
          if( isset($_REQUEST['tipo']) )
          {
             $this->tipo = $_REQUEST['tipo'];
