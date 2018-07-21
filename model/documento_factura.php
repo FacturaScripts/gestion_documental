@@ -1,8 +1,8 @@
 <?php
 /*
  * This file is part of FacturaScripts
- * Copyright (C) 2017    Carlos Garcia Gomez  neorazorx@gmail.com
- * Copyright (C) 2017    Luis Miguel Pérez romero luismipr@gmail.com
+ * Copyright (C) 2017-2018  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2017       Luis Miguel Pérez romero luismipr@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -21,11 +21,11 @@
 require_once 'plugins/gestion_documental/model/core/documento_factura.php';
 
 /**
- *Documento Factura
+ * Documento Factura
  * 
  * @author Carlos García Gómez <neorazorx@gmail.com>
  */
 class documento_factura extends FacturaScripts\model\documento_factura
 {
-   
+    
 }
