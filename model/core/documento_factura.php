@@ -1,7 +1,7 @@
 <?php
-/*
+/**
  * This file is part of FacturaScripts
- * Copyright (C) 2016-2018  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2016-2019 Carlos Garcia Gomez <neorazorx@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -21,71 +21,165 @@ namespace FacturaScripts\model;
 /**
  * Realciona un documentos almacenado con una factura, albarán, pedio, etc...
  *
- * @author carlos
+ * @author Carlos Garcia Gomez <neorazorx@gmail.com>
  */
-class documento_factura extends \fs_model
+class documento_factura extends \fs_extended_model
 {
 
-    public $id;
-    public $ruta;
-    public $nombre;
+    /**
+     *
+     * @var string
+     */
     public $fecha;
-    public $hora;
-    public $tamano;
-    public $usuario;
-    public $idfactura;
-    public $idalbaran;
-    public $idpedido;
-    public $idpresupuesto;
-    public $idservicio;
-    public $idfacturaprov;
-    public $idalbaranprov;
-    public $idpedidoprov;
+
+    /**
+     *
+     * @var bool
+     */
     private $file_exist;
 
-    public function __construct($d = FALSE)
+    /**
+     *
+     * @var string
+     */
+    public $hora;
+
+    /**
+     *
+     * @var int
+     */
+    public $id;
+
+    /**
+     *
+     * @var int
+     */
+    public $idalbaran;
+
+    /**
+     *
+     * @var int
+     */
+    public $idalbaranprov;
+
+    /**
+     *
+     * @var int
+     */
+    public $idfactura;
+
+    /**
+     *
+     * @var int
+     */
+    public $idfacturaprov;
+
+    /**
+     *
+     * @var int
+     */
+    public $idpedido;
+
+    /**
+     *
+     * @var int
+     */
+    public $idpedidoprov;
+
+    /**
+     *
+     * @var int
+     */
+    public $idpresupuesto;
+
+    /**
+     *
+     * @var int
+     */
+    public $idservicio;
+
+    /**
+     *
+     * @var string
+     */
+    public $nombre;
+
+    /**
+     *
+     * @var string
+     */
+    public $ruta;
+
+    /**
+     *
+     * @var int
+     */
+    public $tamano;
+
+    /**
+     *
+     * @var string
+     */
+    public $usuario;
+
+    /**
+     * 
+     * @param array $data
+     */
+    public function __construct($data = false)
     {
-        parent::__construct('documentosfac');
-        if ($d) {
-            $this->id = $this->intval($d['id']);
-            $this->ruta = $d['ruta'];
-            $this->nombre = $d['nombre'];
-            $this->fecha = date('d-m-Y', strtotime($d['fecha']));
-            $this->hora = date('h:i:s', strtotime($d['hora']));
-            $this->tamano = intval($d['tamano']);
-            $this->usuario = $d['usuario'];
-            $this->idfactura = $this->intval($d['idfactura']);
-            $this->idalbaran = $this->intval($d['idalbaran']);
-            $this->idpedido = $this->intval($d['idpedido']);
-            $this->idpresupuesto = $this->intval($d['idpresupuesto']);
-            $this->idservicio = $this->intval($d['idservicio']);
-            $this->idfacturaprov = $this->intval($d['idfacturaprov']);
-            $this->idalbaranprov = $this->intval($d['idalbaranprov']);
-            $this->idpedidoprov = $this->intval($d['idpedidoprov']);
-        } else {
-            $this->id = NULL;
-            $this->ruta = NULL;
-            $this->nombre = NULL;
-            $this->fecha = date('d-m-Y');
-            $this->hora = date('h:i:s');
-            $this->tamano = 0;
-            $this->usuario = NULL;
-            $this->idfactura = NULL;
-            $this->idalbaran = NULL;
-            $this->idpedido = NULL;
-            $this->idpresupuesto = NULL;
-            $this->idservicio = NULL;
-            $this->idfacturaprov = NULL;
-            $this->idalbaranprov = NULL;
-            $this->idpedidoprov = NULL;
+        parent::__construct('documentosfac', $data);
+    }
+
+    /**
+     * Devuelve todos los documentos relacionados.
+     *
+     * @param string $tipo
+     * @param int    $id
+     *
+     * @return \documento_factura
+     */
+    public function all_from($tipo, $id)
+    {
+        $lista = [];
+
+        $sql = "SELECT * FROM documentosfac WHERE " . $tipo . " = " . $this->var2str($id) . ";";
+        $data = $this->db->select($sql);
+        if ($data) {
+            foreach ($data as $d) {
+                $lista[] = new documento_factura($d);
+            }
         }
+
+        return $lista;
     }
 
-    protected function install()
+    public function clear()
     {
-        return '';
+        parent::clear();
+        $this->fecha = date('d-m-Y');
+        $this->hora = date('h:i:s');
+        $this->tamano = 0;
     }
 
+    /**
+     * 
+     * @return bool
+     */
+    public function delete()
+    {
+        if (parent::delete()) {
+            @unlink(FS_MYDOCS . $this->ruta);
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * 
+     * @return bool
+     */
     public function file_exists()
     {
         if (!isset($this->file_exist)) {
@@ -96,11 +190,70 @@ class documento_factura extends \fs_model
     }
 
     /**
+     * 
+     * @return bool
+     */
+    public function is_image()
+    {
+        $name = mb_strtolower($this->nombre, 'UTF-8');
+        if (mb_substr($name, -4) == '.jpg' || mb_substr($name, -5) == '.jpeg') {
+            return true;
+        } else if (mb_substr($name, -4) == '.png' || mb_substr($name, -4) == '.gif') {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * 
+     * @return string
+     */
+    public function model_class_name()
+    {
+        return 'documento_factura';
+    }
+
+    /**
+     * 
+     * @return string
+     */
+    public function primary_column()
+    {
+        return 'id';
+    }
+
+    /**
+     * 
+     * @param string $file_path
+     * @param string $name
+     *
+     * @return bool
+     */
+    public function setFile($file_path, $name)
+    {
+        if (substr(strtolower($name), -4) === '.php') {
+            $this->new_error_msg('No puedes subir archivos PHP.');
+            return false;
+        }
+
+        $nuevon = $this->random_string(6) . '_' . $name;
+        if (copy($file_path, FS_MYDOCS . 'documentos/' . $nuevon)) {
+            $this->nombre = $name;
+            $this->ruta = 'documentos/' . $nuevon;
+            $this->tamano = filesize(getcwd() . '/' . FS_MYDOCS . $this->ruta);
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
      * Converts bytes into human readable file size.
      *
      * @param string $bytes
-     * @return string human readable file size (2,87 Мб)
-     * @author Mogilev Arseny
+     *
+     * @return string
      */
     public function tamano()
     {
@@ -136,94 +289,5 @@ class documento_factura extends \fs_model
             }
         }
         return $result;
-    }
-
-    public function get($id)
-    {
-        $data = $this->db->select("SELECT * FROM documentosfac WHERE id = " . $this->var2str($id) . ";");
-        if ($data) {
-            return new documento_factura($data[0]);
-        } else
-            return FALSE;
-    }
-
-    public function exists()
-    {
-        if (is_null($this->id)) {
-            return FALSE;
-        } else
-            return $this->db->select("SELECT * FROM documentosfac WHERE id = " . $this->var2str($this->id) . ";");
-    }
-
-    public function save()
-    {
-        if ($this->exists()) {
-            $sql = "UPDATE documentosfac SET ruta = " . $this->var2str($this->ruta)
-                . ", nombre = " . $this->var2str($this->nombre)
-                . ", fecha = " . $this->var2str($this->fecha)
-                . ", hora = " . $this->var2str($this->hora)
-                . ", tamano = " . $this->var2str($this->tamano)
-                . ", usuario = " . $this->var2str($this->usuario)
-                . ", idfactura = " . $this->var2str($this->idfactura)
-                . ", idalbaran = " . $this->var2str($this->idalbaran)
-                . ", idpedido = " . $this->var2str($this->idpedido)
-                . ", idpresupuesto = " . $this->var2str($this->idpresupuesto)
-                . ", idservicio = " . $this->var2str($this->idservicio)
-                . ", idfacturaprov = " . $this->var2str($this->idfacturaprov)
-                . ", idalbaranprov = " . $this->var2str($this->idalbaranprov)
-                . ", idpedidoprov = " . $this->var2str($this->idpedidoprov)
-                . "  WHERE id = " . $this->var2str($this->id) . ";";
-
-            return $this->db->exec($sql);
-        } else {
-            $sql = "INSERT INTO documentosfac (ruta,nombre,fecha,hora,tamano,usuario,"
-                . "idfactura,idalbaran,idpedido,idpresupuesto,idservicio,idfacturaprov,"
-                . "idalbaranprov,idpedidoprov) VALUES (" . $this->var2str($this->ruta)
-                . "," . $this->var2str($this->nombre)
-                . "," . $this->var2str($this->fecha)
-                . "," . $this->var2str($this->hora)
-                . "," . $this->var2str($this->tamano)
-                . "," . $this->var2str($this->usuario)
-                . "," . $this->var2str($this->idfactura)
-                . "," . $this->var2str($this->idalbaran)
-                . "," . $this->var2str($this->idpedido)
-                . "," . $this->var2str($this->idpresupuesto)
-                . "," . $this->var2str($this->idservicio)
-                . "," . $this->var2str($this->idfacturaprov)
-                . "," . $this->var2str($this->idalbaranprov)
-                . "," . $this->var2str($this->idpedidoprov) . ");";
-
-            if ($this->db->exec($sql)) {
-                $this->id = $this->db->lastval();
-                return TRUE;
-            } else
-                return FALSE;
-        }
-    }
-
-    public function delete()
-    {
-        return $this->db->exec("DELETE FROM documentosfac WHERE id = " . $this->var2str($this->id) . ";");
-    }
-
-    /**
-     * Devuelve todos los documentos relacionados.
-     * @param type $tipo
-     * @param type $id
-     * @return \documento_factura
-     */
-    public function all_from($tipo, $id)
-    {
-        $lista = array();
-        $sql = "SELECT * FROM documentosfac WHERE " . $tipo . " = " . $this->var2str($id) . ";";
-
-        $data = $this->db->select($sql);
-        if ($data) {
-            foreach ($data as $d) {
-                $lista[] = new documento_factura($d);
-            }
-        }
-
-        return $lista;
     }
 }

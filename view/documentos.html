@@ -47,7 +47,7 @@
                      {if="!$value->file_exists()"}
                         <span class="glyphicon glyphicon-remove" aria-hidden="true" title="No se encuentra el archivo"></span>
                         <a href="{$value->ruta}" target="_blank">{$value->nombre}</a>
-                     {elseif="$fsc->is_image($value->nombre)"}
+                     {elseif="$value->is_image()"}
                         <i class="fa fa-file-image-o" aria-hidden="true"></i>
                         <a href="{$value->ruta}" target="_blank" data-toggle="popover" data-html="true" data-img="{$value->ruta}">{$value->nombre}</a>
                      {else}

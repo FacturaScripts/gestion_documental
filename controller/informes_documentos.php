@@ -1,8 +1,8 @@
 <?php
-/*
+/**
  * This file is part of FacturaScripts
- * Copyright (C) 2017       Luis Miguel Pérez Romero  luismipr@gmail.com
- * Copyright (C) 2017-2018  Carlos Garcia Gomez       neorazorx@gmail.com
+ * Copyright (C) 2017       Luis Miguel Pérez Romero    <luismipr@gmail.com>
+ * Copyright (C) 2017-2019  Carlos Garcia Gomez         <neorazorx@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -18,140 +18,180 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * 
+ */
 class informes_documentos extends fs_controller
 {
 
-    public $mostrar;
-    public $cliente;
-    public $proveedor;
-    public $desde;
-    public $hasta;
-    public $tipo;
-    public $resultados;
-    public $totalresultados;
-    public $idtipo;
-    public $documento;
+    /**
+     *
+     * @var string
+     */
     public $b_url;
-    public $offset;
+
+    /**
+     *
+     * @var cliente
+     */
+    public $cliente;
+
+    /**
+     *
+     * @var string
+     */
+    public $desde;
+
+    /**
+     *
+     * @var string
+     */
+    public $documento;
+
+    /**
+     *
+     * @var string
+     */
+    public $hasta;
+
+    /**
+     *
+     * @var int
+     */
+    public $idtipo;
+
+    /**
+     *
+     * @var string
+     */
+    public $mostrar;
+
+    /**
+     *
+     * @var int
+     */
     public $numresultados;
+
+    /**
+     *
+     * @var int
+     */
+    public $offset;
+
+    /**
+     *
+     * @var proveedor
+     */
+    public $proveedor;
+
+    /**
+     *
+     * @var array
+     */
+    public $resultados;
+
+    /**
+     *
+     * @var string
+     */
+    public $tipo;
+
+    /**
+     *
+     * @var int
+     */
+    public $totalresultados;
 
     public function __construct()
     {
         parent::__construct(__CLASS__, 'Gestión documental', 'informes');
     }
 
-    protected function private_core()
+    /**
+     * 
+     * @param string $name
+     *
+     * @return bool
+     */
+    public function is_image($name)
     {
-        if (isset($_REQUEST['buscar_cliente'])) {
-            $this->buscar_cliente();
-        } else if (isset($_REQUEST['buscar_proveedor'])) {
-            $this->buscar_proveedor();
-        } else {
-            $this->mostrar = 'ventas';
-            if (isset($_REQUEST['mostrar'])) {
-                $this->mostrar = $_REQUEST['mostrar'];
-            }
+        $is_image = FALSE;
+        $name = mb_strtolower($name, 'UTF-8');
 
-            $this->desde = '';
-            if (isset($_REQUEST['desde'])) {
-                $this->desde = $_REQUEST['desde'];
-            }
-
-            $this->hasta = '';
-            if (isset($_REQUEST['hasta'])) {
-                $this->hasta = $_REQUEST['hasta'];
-            }
-
-            $this->offset = 0;
-            if (isset($_REQUEST['offset'])) {
-                $this->offset = $_REQUEST['offset'];
-            }
-
-            $this->cliente = new cliente();
-            $this->proveedor = new proveedor();
-            if (isset($_REQUEST['codcliente']) && $_REQUEST['codcliente'] != '') {
-                $cli0 = new cliente();
-                $this->cliente = $cli0->get($_REQUEST['codcliente']);
-            } else if (isset($_REQUEST['codproveedor']) && $_REQUEST['codproveedor'] != '') {
-                $pro0 = new proveedor();
-                $this->proveedor = $pro0->get($_REQUEST['codproveedor']);
-            }
-
-            $this->tipo = 'facturascli';
-            $this->idtipo = 'idfactura';
-            $this->documento = 'factura_cliente';
-
-            if (isset($_REQUEST['tipo'])) {
-                $this->tipo = $_REQUEST['tipo'];
-                if ($_REQUEST['tipo'] == 'facturascli') {
-                    $this->idtipo = 'idfactura';
-                    $this->documento = 'factura_cliente';
-                } else if ($_REQUEST['tipo'] == 'presupuestoscli') {
-                    $this->idtipo = 'idpresupuesto';
-                    $this->documento = 'presupuesto_cliente';
-                } else if ($_REQUEST['tipo'] == 'pedidoscli') {
-                    $this->idtipo = 'idpedido';
-                    $this->documento = 'pedido_cliente';
-                } else if ($_REQUEST['tipo'] == 'albaranescli') {
-                    $this->idtipo = 'idalbaran';
-                    $this->documento = 'albaran_cliente';
-                } else if ($_REQUEST['tipo'] == 'servicioscli') {
-                    $this->idtipo = 'idservicio';
-                    $this->documento = 'servicio_cliente';
-                } else if ($_REQUEST['tipo'] == 'pedidosprov') {
-                    $this->idtipo = 'idpedido';
-                    $this->documento = 'pedido_proveedor';
-                } else if ($_REQUEST['tipo'] == 'albaranesprov') {
-                    $this->idtipo = 'idalbaran';
-                    $this->documento = 'albaran_proveedor';
-                } else if ($_REQUEST['tipo'] == 'facturasprov') {
-                    $this->idtipo = 'idfactura';
-                    $this->documento = 'factura_proveedor';
-                }
-            }
-
-            $this->resultados = $this->resultados();
-
-            /// url para paginacion y descarga 
-            $this->b_url = $this->url() . "&mostrar=" . $this->mostrar
-                . "&codcliente=" . $this->cliente->codcliente
-                . "&codproveedor=" . $this->proveedor->codproveedor
-                . "&tipo=" . $this->tipo
-                . "&desde=" . $this->desde
-                . "&hasta=" . $this->hasta
-                . "&offset=" . $this->offset;
-
-            /// ¿Descargar zip?
-            if (isset($_REQUEST['download'])) {
-                if ($this->totalresultados) {
-                    foreach ($this->totalresultados as $r) {
-                        $archivo_zip = $this->download_zip($r['ruta'], $r['nombrearchivo']);
-                    }
-
-                    if ($archivo_zip) {
-                        header("Content-Type: application/zip");
-                        header("Content-Transfer-Encoding: Binary");
-                        header("Content-Length: " . filesize('documentos.zip'));
-                        header("Content-Disposition: attachment; filename=\"" . basename('documentos.zip') . "\"");
-                        readfile('documentos.zip');
-
-                        if (file_exists('documentos.zip')) {
-                            unlink('documentos.zip');
-                        }
-                    } else {
-                        $this->new_error_msg('Ha ocurrido un problema al generar el zip');
-                    }
-                }
-            }
+        if (mb_substr($name, -4) == '.jpg' OR mb_substr($name, -5) == '.jpeg') {
+            $is_image = TRUE;
+        } else if (mb_substr($name, -4) == '.png' OR mb_substr($name, -4) == '.gif') {
+            $is_image = TRUE;
         }
+
+        return $is_image;
     }
 
     /**
-     * Buscamos los documentos con adjuntos
+     * 
+     * @return array
+     */
+    public function paginas()
+    {
+        $total = $this->numresultados;
+
+        $url = $this->url() . "&mostrar=" . $this->mostrar
+            . "&codcliente=" . $this->cliente->codcliente
+            . "&codproveedor=" . $this->proveedor->codproveedor
+            . "&tipo=" . $this->tipo
+            . "&desde=" . $this->desde
+            . "&hasta=" . $this->hasta;
+
+
+        $paginas = [];
+        $i = 0;
+        $num = 0;
+        $actual = 1;
+
+        /// añadimos todas la página
+        while ($num < $total) {
+            $paginas[$i] = array(
+                'url' => $url . "&offset=" . ($i * FS_ITEM_LIMIT),
+                'num' => $i + 1,
+                'actual' => ($num == $this->offset)
+            );
+
+            if ($num == $this->offset) {
+                $actual = $i;
+            }
+
+            $i++;
+            $num += FS_ITEM_LIMIT;
+        }
+
+        /// ahora descartamos
+        foreach ($paginas as $j => $value) {
+            $enmedio = intval($i / 2);
+
+            /**
+             * descartamos todo excepto la primera, la última, la de enmedio,
+             * la actual, las 5 anteriores y las 5 siguientes
+             */
+            if (($j > 1 AND $j < $actual - 5 AND $j != $enmedio) OR ( $j > $actual + 5 AND $j < $i - 1 AND $j != $enmedio)) {
+                unset($paginas[$j]);
+            }
+        }
+
+        if (count($paginas) > 1) {
+            return $paginas;
+        }
+
+        return [];
+    }
+
+    /**
+     * Buscamos los documentos con adjuntos.
+     * 
+     * @return array
      */
     public function resultados()
     {
-        $resultados = array();
+        $resultados = [];
 
         /// inicio y fin
         $inicio = intval($this->offset);
@@ -222,20 +262,6 @@ class informes_documentos extends fs_controller
         return array_slice($resultados, $inicio, $fin);
     }
 
-    private function download_zip($ruta, $filename)
-    {
-        /// desactivamos el motor de plantillas
-        $this->template = FALSE;
-
-        $zip = new ZipArchive;
-        if ($zip->open('documentos.zip', ZipArchive::CREATE) === TRUE) {
-            $zip->addFile($ruta, $filename);
-            $zip->close();
-        }
-
-        return true;
-    }
-
     /**
      * buscamos los clientes autocomplete
      */
@@ -245,7 +271,7 @@ class informes_documentos extends fs_controller
         $this->template = FALSE;
 
         $cli0 = new cliente();
-        $json = array();
+        $json = [];
         foreach ($cli0->search($_REQUEST['buscar_cliente']) as $cli) {
             $json[] = array('value' => $cli->nombre, 'data' => $cli->codcliente);
         }
@@ -263,7 +289,7 @@ class informes_documentos extends fs_controller
         $this->template = FALSE;
 
         $pro0 = new proveedor();
-        $json = array();
+        $json = [];
         foreach ($pro0->search($_REQUEST['buscar_proveedor']) as $pro) {
             $json[] = array('value' => $pro->nombre, 'data' => $pro->codproveedor);
         }
@@ -272,70 +298,106 @@ class informes_documentos extends fs_controller
         echo json_encode(array('query' => $_REQUEST['buscar_proveedor'], 'suggestions' => $json));
     }
 
-    public function paginas()
+    private function download_zip($ruta, $filename)
     {
-        $total = $this->numresultados;
+        /// desactivamos el motor de plantillas
+        $this->template = FALSE;
 
-        $url = $this->url() . "&mostrar=" . $this->mostrar
-            . "&codcliente=" . $this->cliente->codcliente
-            . "&codproveedor=" . $this->proveedor->codproveedor
-            . "&tipo=" . $this->tipo
-            . "&desde=" . $this->desde
-            . "&hasta=" . $this->hasta;
-
-
-        $paginas = array();
-        $i = 0;
-        $num = 0;
-        $actual = 1;
-
-        /// añadimos todas la página
-        while ($num < $total) {
-            $paginas[$i] = array(
-                'url' => $url . "&offset=" . ($i * FS_ITEM_LIMIT),
-                'num' => $i + 1,
-                'actual' => ($num == $this->offset)
-            );
-
-            if ($num == $this->offset) {
-                $actual = $i;
-            }
-
-            $i++;
-            $num += FS_ITEM_LIMIT;
+        $zip = new ZipArchive;
+        if ($zip->open('documentos.zip', ZipArchive::CREATE) === TRUE) {
+            $zip->addFile($ruta, $filename);
+            $zip->close();
         }
 
-        /// ahora descartamos
-        foreach ($paginas as $j => $value) {
-            $enmedio = intval($i / 2);
-
-            /**
-             * descartamos todo excepto la primera, la última, la de enmedio,
-             * la actual, las 5 anteriores y las 5 siguientes
-             */
-            if (($j > 1 AND $j < $actual - 5 AND $j != $enmedio) OR ( $j > $actual + 5 AND $j < $i - 1 AND $j != $enmedio)) {
-                unset($paginas[$j]);
-            }
-        }
-
-        if (count($paginas) > 1) {
-            return $paginas;
-        } else {
-            return array();
-        }
+        return true;
     }
 
-    public function is_image($name)
+    protected function private_core()
     {
-        $is_image = FALSE;
-        $name = mb_strtolower($name, 'UTF-8');
+        if (isset($_REQUEST['buscar_cliente'])) {
+            $this->buscar_cliente();
+        } else if (isset($_REQUEST['buscar_proveedor'])) {
+            $this->buscar_proveedor();
+        } else {
+            $this->mostrar = isset($_REQUEST['mostrar']) ? $_REQUEST['mostrar'] : 'ventas';
+            $this->desde = isset($_REQUEST['desde']) ? $_REQUEST['desde'] : '';
+            $this->hasta = isset($_REQUEST['hasta']) ? $_REQUEST['hasta'] : '';
+            $this->offset = isset($_REQUEST['offset']) ? (int) $_REQUEST['offset'] : 0;
 
-        if (mb_substr($name, -4) == '.jpg' OR mb_substr($name, -5) == '.jpeg') {
-            $is_image = TRUE;
-        } else if (mb_substr($name, -4) == '.png' OR mb_substr($name, -4) == '.gif') {
-            $is_image = TRUE;
+            $this->cliente = new cliente();
+            $this->proveedor = new proveedor();
+            if (isset($_REQUEST['codcliente']) && $_REQUEST['codcliente'] != '') {
+                $cli0 = new cliente();
+                $this->cliente = $cli0->get($_REQUEST['codcliente']);
+            } else if (isset($_REQUEST['codproveedor']) && $_REQUEST['codproveedor'] != '') {
+                $pro0 = new proveedor();
+                $this->proveedor = $pro0->get($_REQUEST['codproveedor']);
+            }
+
+            $this->tipo = 'facturascli';
+            $this->idtipo = 'idfactura';
+            $this->documento = 'factura_cliente';
+
+            if (isset($_REQUEST['tipo'])) {
+                $this->tipo = $_REQUEST['tipo'];
+                if ($_REQUEST['tipo'] == 'facturascli') {
+                    $this->idtipo = 'idfactura';
+                    $this->documento = 'factura_cliente';
+                } else if ($_REQUEST['tipo'] == 'presupuestoscli') {
+                    $this->idtipo = 'idpresupuesto';
+                    $this->documento = 'presupuesto_cliente';
+                } else if ($_REQUEST['tipo'] == 'pedidoscli') {
+                    $this->idtipo = 'idpedido';
+                    $this->documento = 'pedido_cliente';
+                } else if ($_REQUEST['tipo'] == 'albaranescli') {
+                    $this->idtipo = 'idalbaran';
+                    $this->documento = 'albaran_cliente';
+                } else if ($_REQUEST['tipo'] == 'servicioscli') {
+                    $this->idtipo = 'idservicio';
+                    $this->documento = 'servicio_cliente';
+                } else if ($_REQUEST['tipo'] == 'pedidosprov') {
+                    $this->idtipo = 'idpedido';
+                    $this->documento = 'pedido_proveedor';
+                } else if ($_REQUEST['tipo'] == 'albaranesprov') {
+                    $this->idtipo = 'idalbaran';
+                    $this->documento = 'albaran_proveedor';
+                } else if ($_REQUEST['tipo'] == 'facturasprov') {
+                    $this->idtipo = 'idfactura';
+                    $this->documento = 'factura_proveedor';
+                }
+            }
+
+            $this->resultados = $this->resultados();
+
+            /// url para paginacion y descarga 
+            $this->b_url = $this->url() . "&mostrar=" . $this->mostrar
+                . "&codcliente=" . $this->cliente->codcliente
+                . "&codproveedor=" . $this->proveedor->codproveedor
+                . "&tipo=" . $this->tipo
+                . "&desde=" . $this->desde
+                . "&hasta=" . $this->hasta
+                . "&offset=" . $this->offset;
+
+            /// ¿Descargar zip?
+            if (isset($_REQUEST['download']) && $this->totalresultados) {
+                foreach ($this->totalresultados as $r) {
+                    $archivo_zip = $this->download_zip($r['ruta'], $r['nombrearchivo']);
+                }
+
+                if ($archivo_zip) {
+                    header("Content-Type: application/zip");
+                    header("Content-Transfer-Encoding: Binary");
+                    header("Content-Length: " . filesize('documentos.zip'));
+                    header("Content-Disposition: attachment; filename=\"" . basename('documentos.zip') . "\"");
+                    readfile('documentos.zip');
+
+                    if (file_exists('documentos.zip')) {
+                        unlink('documentos.zip');
+                    }
+                } else {
+                    $this->new_error_msg('Ha ocurrido un problema al generar el zip');
+                }
+            }
         }
-
-        return $is_image;
     }
 }

@@ -1,7 +1,7 @@
 <?php
-/*
+/**
  * This file is part of FacturaScripts
- * Copyright (C) 2015-2018  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2015-2019 Carlos Garcia Gomez <neorazorx@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -20,11 +20,15 @@
 /**
  * Description of documentos
  *
- * @author carlos
+ * @author Carlos Garcia Gomez <neorazorx@gmail.com>
  */
 class documentos extends fs_controller
 {
 
+    /**
+     *
+     * @var array
+     */
     public $documentos;
 
     public function __construct()
@@ -37,9 +41,9 @@ class documentos extends fs_controller
         $this->share_extension();
 
         $this->check_documentos();
-        $this->documentos = array();
+        $this->documentos = [];
 
-        if (isset($_GET['folder']) AND isset($_GET['id'])) {
+        if (isset($_GET['folder']) && isset($_GET['id'])) {
             if (isset($_POST['upload'])) {
                 $this->upload_documento();
             } else if (isset($_GET['delete'])) {
@@ -65,17 +69,8 @@ class documentos extends fs_controller
             return;
         }
 
-        if (substr(strtolower($_FILES['fdocumento']['name']), -4) === '.php') {
-            $this->new_error_msg('No puedes subir archivos PHP.');
-            return;
-        }
-
-        $nuevon = $this->random_string(6) . '_' . $_FILES['fdocumento']['name'];
-        if (copy($_FILES['fdocumento']['tmp_name'], FS_MYDOCS . 'documentos/' . $nuevon)) {
-            $doc = new documento_factura();
-            $doc->ruta = 'documentos/' . $nuevon;
-            $doc->nombre = $_FILES['fdocumento']['name'];
-            $doc->tamano = filesize(getcwd() . '/' . FS_MYDOCS . $doc->ruta);
+        $doc = new documento_factura();
+        if ($doc->setFile($_FILES['fdocumento']['tmp_name'], $_FILES['fdocumento']['name'])) {
             $doc->usuario = $this->user->nick;
 
             if ($_GET['folder'] == 'facturascli') {
@@ -110,13 +105,8 @@ class documentos extends fs_controller
         $doc0 = new documento_factura();
 
         $documento = $doc0->get($_GET['delete']);
-        if ($documento) {
-            if ($documento->delete()) {
-                $this->new_message('Documento eliminado correctamente.');
-                @unlink(FS_MYDOCS . $documento->ruta);
-            } else {
-                $this->new_error_msg('Error al eliminar el documento.');
-            }
+        if ($documento && $documento->delete()) {
+            $this->new_message('Documento eliminado correctamente.');
         } else {
             $this->new_error_msg('Documento no encontrado.');
         }
@@ -200,8 +190,9 @@ class documentos extends fs_controller
     {
         if (isset($_GET['folder']) AND isset($_GET['id'])) {
             return 'index.php?page=' . __CLASS__ . '&folder=' . $_GET['folder'] . '&id=' . $_GET['id'];
-        } else
-            return parent::url();
+        }
+
+        return parent::url();
     }
 
     private function get_documentos()
@@ -273,7 +264,7 @@ class documentos extends fs_controller
         } else if ($_GET['folder'] == 'pedidosprov') {
             return $doc->all_from('idpedidoprov', $_GET['id']);
         } else {
-            return array();
+            return [];
         }
     }
 
@@ -347,25 +338,9 @@ class documentos extends fs_controller
             $documento = $serv0->get($_GET['id']);
         }
 
-        if ($documento) {
-            if ($numdocs != $documento->numdocs) {
-                $documento->numdocs = $numdocs;
-                $documento->save();
-            }
+        if ($documento && $numdocs != $documento->numdocs) {
+            $documento->numdocs = $numdocs;
+            $documento->save();
         }
-    }
-
-    public function is_image($name)
-    {
-        $is_image = FALSE;
-        $name = mb_strtolower($name, 'UTF-8');
-
-        if (mb_substr($name, -4) == '.jpg' OR mb_substr($name, -5) == '.jpeg') {
-            $is_image = TRUE;
-        } else if (mb_substr($name, -4) == '.png' OR mb_substr($name, -4) == '.gif') {
-            $is_image = TRUE;
-        }
-
-        return $is_image;
     }
 }
