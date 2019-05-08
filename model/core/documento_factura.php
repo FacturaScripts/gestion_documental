@@ -134,16 +134,16 @@ class documento_factura extends \fs_extended_model
     /**
      * Devuelve todos los documentos relacionados.
      *
-     * @param string $tipo
-     * @param int    $id
+     * @param string $column
+     * @param int    $value
      *
-     * @return \documento_factura
+     * @return \documento_factura[]
      */
-    public function all_from($tipo, $id)
+    public function all_from($column, $value)
     {
         $lista = [];
 
-        $sql = "SELECT * FROM documentosfac WHERE " . $tipo . " = " . $this->var2str($id) . ";";
+        $sql = "SELECT * FROM documentosfac WHERE " . $column . " = " . $this->var2str($value) . ";";
         $data = $this->db->select($sql);
         if ($data) {
             foreach ($data as $d) {
