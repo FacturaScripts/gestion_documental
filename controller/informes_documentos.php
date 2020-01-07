@@ -2,7 +2,7 @@
 /**
  * This file is part of FacturaScripts
  * Copyright (C) 2017       Luis Miguel Pérez Romero    <luismipr@gmail.com>
- * Copyright (C) 2017-2019  Carlos Garcia Gomez         <neorazorx@gmail.com>
+ * Copyright (C) 2017-2020  Carlos Garcia Gomez         <neorazorx@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -11,11 +11,11 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU Affero General Public License for more details.
  * 
  * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 /**
@@ -305,7 +305,7 @@ class informes_documentos extends fs_controller
 
         $zip = new ZipArchive;
         if ($zip->open('documentos.zip', ZipArchive::CREATE) === TRUE) {
-            $zip->addFile($ruta, $filename);
+            $zip->addFile(FS_MYDOCS . $ruta, $filename);
             $zip->close();
         }
 
